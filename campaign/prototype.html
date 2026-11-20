@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--side:#0F1E28;--side2:#1A2C38;--bg:#F1F3F4;--card:#fff;--ink:#121A20;--ink2:#56616A;--ink3:#8B959C;--line:#DDE2E5;--t:#1D8B72;--tSoft:#E4F3EF;--tLine:#9FD3C5}
+*{box-sizing:border-box;font-style:normal!important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:400 15px/1.45 "Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,textarea,select{font:inherit;color:inherit}
+.shell{display:grid;grid-template-columns:258px 1fr;min-height:100%}
+aside{background:var(--side);color:#E8EEF1;padding:18px 14px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh}
+aside .logo{display:flex;align-items:center;gap:10px;margin:2px 0 24px 8px;color:#fff}
+aside .logo svg{width:44px;height:30px;flex:none}
+aside .logo b{font-weight:700;font-size:17px;line-height:.86;letter-spacing:.01em}
+.si{display:flex;align-items:center;gap:14px;height:42px;padding:0 12px;border-radius:8px;font-size:16px;color:#E8EEF1;width:100%;text-align:left}
+.si:hover{background:var(--side2)}
+.si.on{background:var(--side2)}
+.si svg{width:19px;height:19px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7}
+.sub{padding:4px 0 6px 52px;display:grid;gap:2px}
+.sub button{text-align:left;padding:6px 0;color:#AFC0C9;font-size:15px}
+.sub button:hover{color:#fff}.sub button.on{color:#3FC4A0}
+aside .spacer{flex:1}
+.acct{display:flex;align-items:center;gap:12px;background:var(--side2);border-radius:10px;padding:10px 12px;margin-top:10px}
+.acct span.av{width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--t);font-weight:700;font-size:12px}
+main{padding:28px 44px 60px;min-width:0}
+.crumb{color:var(--ink3);font-size:15px;margin-bottom:6px}
+.hrow{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+h1{font-size:40px;line-height:1.05;letter-spacing:-.02em;margin:0 0 12px;font-weight:700}
+.lead{color:var(--ink2);font-size:17px;max-width:680px;margin:0}
+.btn{height:46px;padding:0 20px;border-radius:10px;font-weight:600;font-size:16px;display:inline-flex;align-items:center;gap:10px;white-space:nowrap;transition:background .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn.dark{background:var(--ink);color:#fff}.btn.dark:hover{background:#26323B}
+.btn.ghost{background:#fff;border:1px solid var(--line)}.btn.ghost:hover{background:#F7F9FA}
+.btn.teal{background:var(--t);color:#fff;height:40px;font-size:15px}.btn.teal:hover{background:#177762}
+.btn[disabled]{opacity:.5;cursor:default}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;margin-top:30px;align-items:start}
+.card{background:var(--card);border-radius:18px;border:1px solid #E7EBED;padding:30px 32px}
+.card+.card{margin-top:22px}
+.step{display:flex;gap:16px;align-items:center;margin-bottom:26px}
+.num{width:42px;height:42px;border-radius:10px;background:var(--tSoft);color:var(--t);font-weight:700;display:grid;place-items:center;font-size:17px}
+.step h2{font-size:24px;margin:0;letter-spacing:-.01em}
+.step p{margin:0;color:var(--ink2)}
+label.l{display:block;font-weight:500;margin:0 0 10px;font-size:16px}
+.f{width:100%;height:56px;border:1px solid var(--line);border-radius:10px;padding:0 18px;font-size:17px;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.f:focus{border-color:var(--t);box-shadow:0 0 0 3px var(--tSoft)}
+textarea.f{height:130px;padding:14px 18px;resize:none;line-height:1.5}
+.f.title{font-weight:600}
+.fld{margin-bottom:26px;position:relative}
+.ch{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.chb{height:100px;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-weight:500;font-size:17px;color:#2B353C;transition:.15s}
+.chb svg{width:22px;height:22px;stroke:#5B666E;fill:none;stroke-width:1.6}
+.chb:hover{border-color:#B9C3C8}
+.chb.on{border:2px solid var(--t);background:var(--tSoft);color:var(--t)}.chb.on svg{stroke:var(--t)}
+.cnt{position:absolute;right:16px;bottom:12px;font-size:13px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.cnt.over{color:#C2412D}
+.ai{display:flex;gap:12px;align-items:center;background:var(--tSoft);border:1px solid var(--tLine);border-radius:10px;padding:13px 18px;color:#165E4E;font-weight:500}
+.lr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.lr label.l{margin:0}
+.gen .f{background:linear-gradient(90deg,#F1F5F4 25%,#E2EEEA 50%,#F1F5F4 75%);background-size:200% 100%;animation:sh 1s linear infinite;color:transparent}
+@keyframes sh{to{background-position:-200% 0}}
+.seg{display:flex;flex-wrap:wrap;gap:10px}
+.sg{border:1px solid var(--line);border-radius:999px;padding:10px 16px;font-weight:500;display:flex;gap:8px;align-items:center}
+.sg small{color:var(--ink3);font-weight:400;font-variant-numeric:tabular-nums}
+.sg.on{border-color:var(--t);background:var(--tSoft);color:#165E4E}
+.sg.ai-pick::after{content:"★";color:var(--t);font-size:12px}
+.reach{margin-top:18px;display:flex;align-items:baseline;gap:10px}
+.reach b{font-size:30px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.reach span{color:var(--ink2)}
+.when{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.wb{border:1px solid var(--line);border-radius:12px;padding:16px 18px;text-align:left}
+.wb b{display:block;font-weight:600;font-size:16px}.wb span{color:var(--ink2);font-size:14px}
+.wb.on{border:2px solid var(--t);background:var(--tSoft)}
+.dt{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.side{position:sticky;top:24px}
+.pv h3{font-size:22px;margin:0;letter-spacing:-.01em}
+.pv .sub2{color:var(--ink2);font-size:15px}
+.tag{background:var(--tSoft);color:var(--t);font-weight:600;font-size:14px;padding:4px 10px;border-radius:6px}
+.phone{margin-top:24px;background:#1C3442;border-radius:36px;padding:16px 16px 22px;min-height:420px;color:#fff}
+.sb{display:flex;justify-content:space-between;padding:4px 14px 14px;font-weight:600;font-size:15px}
+.note{background:rgba(255,255,255,.94);color:var(--ink);border-radius:20px;padding:16px;animation:in .3s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.note .app{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:8px}
+.note .app i{width:24px;height:24px;border-radius:6px;background:var(--t);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+.note .app small{margin-left:auto;color:var(--ink3);font-weight:400}
+.note b{display:block;font-size:17px;margin-bottom:2px}
+.note p{margin:0 0 12px;color:#3E4850;font-size:15px}
+.vis{border-radius:12px;height:150px;overflow:hidden;position:relative}
+.vis img{width:100%;height:100%;object-fit:cover;object-position:left center}
+.vis.gen{display:flex;flex-direction:column;justify-content:flex-end;padding:14px;color:#fff}
+.vis.gen strong{font-size:22px;line-height:1.1;max-width:70%}
+.vis.gen span{font-size:12px;opacity:.85;margin-top:6px;max-width:70%}
+.bubble{background:#E9E9EB;color:#111;border-radius:18px 18px 18px 4px;padding:12px 14px;max-width:88%;font-size:15px;animation:in .3s ease}
+.smshead{text-align:center;color:#C9D4DA;font-size:13px;margin:4px 0 14px}
+.mail{background:#fff;color:var(--ink);border-radius:14px;overflow:hidden;animation:in .3s ease}
+.mail .mh{padding:12px 14px;border-bottom:1px solid #EEE;font-size:13px;color:var(--ink2)}
+.mail .mb{padding:14px}
+.mail .mb b{font-size:18px;display:block;margin-bottom:6px}
+.mail .cta{display:inline-block;margin-top:10px;background:var(--t);color:#fff;padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px}
+.inapp{background:#fff;color:var(--ink);border-radius:18px;min-height:340px;padding:14px;animation:in .3s ease}
+.inapp .bar{height:10px;width:40%;background:#EEF1F2;border-radius:5px;margin-bottom:10px}
+.inapp .modal{border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.18);margin-top:30px}
+.inapp .modal .t{padding:12px 14px}
+.inapp .modal .t b{display:block}
+.applied{display:flex;gap:16px;align-items:center;margin-top:22px;padding:22px 26px}
+.applied i{width:48px;height:48px;border-radius:12px;background:var(--tSoft);color:var(--t);display:grid;place-items:center;font-size:20px;flex:none}
+.applied b{font-size:18px;display:block}.applied span{color:var(--ink2)}
+/* list */
+.sugg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:28px 0 34px}
+.sc{background:#fff;border:1px solid #E7EBED;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;text-align:left;transition:box-shadow .2s,transform .2s}
+.sc:hover{box-shadow:0 12px 34px rgba(15,30,40,.10);transform:translateY(-2px)}
+.sc .vis{height:120px;border-radius:0}
+.sc .b{padding:18px 20px 20px;display:flex;flex-direction:column;gap:6px;flex:1}
+.sc .why{font-size:13px;color:var(--t);font-weight:600;display:flex;gap:6px}
+.sc h3{margin:0;font-size:19px}
+.sc p{margin:0;color:var(--ink2);font-size:14px;flex:1}
+.sc .use{margin-top:12px;font-weight:600;color:var(--t)}
+h2.sec{font-size:22px;margin:0;letter-spacing:-.01em}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:18px;overflow:hidden;border:1px solid #E7EBED;margin-top:16px}
+th{text-align:left;font-weight:500;color:var(--ink3);font-size:14px;padding:14px 20px;border-bottom:1px solid #EEF1F2}
+td{padding:16px 20px;border-bottom:1px solid #EEF1F2;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.st{font-size:13px;font-weight:600;padding:4px 10px;border-radius:6px}
+.st.live{background:var(--tSoft);color:var(--t)}.st.sched{background:#EAF0FB;color:#2F5BB7}.st.draft{background:#F0F1F2;color:var(--ink2)}.st.done{background:#F0F1F2;color:var(--ink3)}
+tr.new td{animation:hl 2.4s ease}
+@keyframes hl{0%,40%{background:#E4F3EF}100%{background:#fff}}
+.toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;font-weight:500;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.err{color:#C2412D;font-size:14px;margin-top:6px}
+.f.bad{border-color:#E39A8D}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}
+.kp .card{padding:22px 24px}
+.kp small{color:var(--ink2);display:block}
+.kp b{font-size:32px;letter-spacing:-.02em}
+.kp em{color:var(--t);font-weight:600;font-size:14px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const IC={home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',msg:'<path d="M4 5h16v11H8l-4 4z"/>',gift:'<path d="M3 9h18v4H3zM5 13h14v8H5zM12 9v12M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-4 3-6 6.5-6s6 2 6.5 6M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2 .7 3.3 2.7 3.5 6"/>',layers:'<path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17.5v.01"/>',bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/>',sms:'<path d="M4 5h16v11H8l-4 4z"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',phone:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>'};
+const svg=k=>`<svg viewBox="0 0 24 24">${IC[k]}</svg>`;
+const SUGG=[
+ {id:"warm",why:"Cold week ahead in your region",name:"Holiday Warm-Up 2025",title:"Warm up with 20% off this season",body:"Cozy up with our limited holiday menu — show this in the app to redeem. Valid through the holidays.",vis:{img:"visual.jpg"},seg:"active",ch:"push"},
+ {id:"back",why:"412 members haven't visited in 60 days",name:"We miss you",title:"Your next coffee is on us",body:"It's been a while! Come back this week and your next coffee is free. Just scan your card at the till.",vis:{g:"linear-gradient(135deg,#2E5E4E,#7FB39B)",t:"Your next coffee is on us"},seg:"lapsed",ch:"push"},
+ {id:"bday",why:"38 birthdays this month",name:"Birthday treat",title:"Happy birthday from Nimbus",body:"A little treat for your big day: double points on everything you buy this week.",vis:{g:"linear-gradient(135deg,#8A4B2E,#E7A673)",t:"Double points for your birthday"},seg:"bday",ch:"sms"},
+];
+const ALT={push:[["Warm up with 20% off this season","Cozy up with our limited holiday menu — show this in the app to redeem. Valid through the holidays."],["Cold outside? Your latte is 20% off","Stop by for something warm. 20% off all hot drinks until Sunday, just show the app."],["Holiday menu is here ☕","Gingerbread latte, chestnut cookies and more. Members save 20% this week."]],
+ sms:[["Nimbus: 20% off hot drinks","Nimbus: 20% off all hot drinks this week. Show your member card at the till. Reply STOP to opt out."],["Nimbus: holiday menu","Nimbus: our holiday menu is back! Members save 20% until Sunday. Reply STOP to opt out."]],
+ email:[["Your holiday treat is waiting","Our seasonal menu just landed and members get 20% off everything warm. Come in this week and show your app at the till."],["Warm drinks, warmer welcome","Gingerbread lattes, chestnut cookies and 20% off for members. See you soon!"]],
+ inapp:[["20% off the holiday menu","Tap to save the offer to your card. Valid through the holidays."],["Members save 20% this week","Add the offer to your card and show it at the till."]]};
+const SEG={all:["All members",8420],active:["Active last 30 days",3116],lapsed:["Lapsed 60+ days",412],bday:["Birthday this month",38],app:["App users",5270]};
+const LIMIT={push:160,sms:160,email:600,inapp:200};
+const CAMPS=[{n:"Autumn loyalty week",c:"Email",a:"All members",s:"done",sent:"8,201",conv:"6.1%"},{n:"Pumpkin spice launch",c:"Push",a:"App users",s:"done",sent:"5,034",conv:"9.4%"},{n:"Saturday double points",c:"In-App",a:"Active last 30 days",s:"live",sent:"2,870",conv:"11.2%"},{n:"New store opening Graz",c:"SMS",a:"Lapsed 60+ days",s:"draft",sent:"—",conv:"—"}];
+let S={view:"list",f:null,alt:0,gen:false,err:{},newRow:null};
+function blank(){return{name:"",ch:"push",title:"",body:"",vis:null,seg:"all",when:"now",date:"2025-12-12",time:"09:00",ai:false}}
+let tT;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("show"),3200)}
+function nav(){const on=v=>S.view==v?"on":"";
+ return `<aside><div class="logo" aria-label="hello again"><svg viewBox="0 0 44 30" fill="none" stroke-width="3.2" stroke-linecap="round"><defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stop-color="#3FB6E8"/><stop offset="1" stop-color="#3FC48A"/></linearGradient></defs><g stroke="url(#lg)"><circle cx="12" cy="9" r="5.5"/><circle cx="31" cy="9" r="5.5"/><path d="M2.5 26c1.5-6 5-8.5 9.5-8.5s8 2.5 9.5 8.5M21.5 26c1.5-6 5-8.5 9.5-8.5s8 2.5 9.5 8.5"/></g></svg><b>hello<br>again.</b></div><button class="si ${on("overview")}" data-go="overview">${svg("home")}Overview</button>
+ <button class="si ${S.view!="overview"?"on":""}" data-go="list">${svg("msg")}Messaging<span style="margin-left:auto;font-size:12px">⌃</span></button>
+ <div class="sub"><button class="${on("list")}" data-go="list">Campaigns</button><button class="${on("new")}" data-new>New Campaign</button><button data-soon="Templates">Templates</button><button data-soon="Automations">Automations</button></div>
+ <button class="si" data-soon="Incentivize">${svg("gift")}Incentivize</button><button class="si" data-soon="Customers">${svg("users")}Customers</button><button class="si" data-soon="Content">${svg("layers")}Content</button>
+ <div class="spacer"></div><button class="si" data-soon="Settings">${svg("gear")}Settings</button><button class="si" data-soon="Help">${svg("help")}Help &amp; Support</button>
+ <div class="acct"><span class="av">ha</span>hello again<span style="margin-left:auto">›</span></div></aside>`}
+function visHtml(v,cls=""){if(!v)return"";return v.img?`<div class="vis ${cls}"><img src="${v.img}" alt=""></div>`:`<div class="vis gen ${cls}" style="background:${v.g}"><strong>${v.t}</strong><span>Nimbus members</span></div>`}
+function overview(){return `<main><div class="crumb">Overview</div><h1>Good morning</h1><p class="lead">Here is how your campaigns did this month.</p>
+ <div class="kp">${[["Campaigns sent","12","+3 vs last month"],["In-app sales from campaigns","€18,420","+23%"],["Average conversion","8.7%","+1.9 pts"]].map(([l,v,d])=>`<div class="card"><small>${l}</small><b>${v}</b> <em>${d}</em></div>`).join("")}</div>
+ <div style="margin-top:28px"><button class="btn dark" data-go="list">See AI suggestions →</button></div></main>`}
+function list(){return `<main><div class="crumb">Messaging · Campaigns</div><div class="hrow"><div><h1>Campaigns</h1><p class="lead">Start from an AI suggestion based on your customers, or build one from scratch.</p></div><button class="btn dark" data-new>New campaign</button></div>
+ <div class="sugg">${SUGG.map(s=>`<button class="sc" data-sugg="${s.id}">${visHtml(s.vis)}<div class="b"><span class="why">★ ${s.why}</span><h3>${s.title}</h3><p>${s.body}</p><span class="use">Use this draft</span></div></button>`).join("")}</div>
+ <h2 class="sec">All campaigns</h2><table><thead><tr><th>Name</th><th>Channel</th><th>Audience</th><th>Status</th><th>Sent</th><th>Conversion</th></tr></thead><tbody>
+ ${CAMPS.map((c,i)=>`<tr class="${S.newRow===i?"new":""}"><td style="font-weight:600">${c.n}</td><td>${c.c}</td><td>${c.a}</td><td><span class="st ${c.s}">${{live:"Live",sched:"Scheduled",draft:"Draft",done:"Sent"}[c.s]}</span></td><td>${c.sent}</td><td>${c.conv}</td></tr>`).join("")}</tbody></table></main>`}
+function preview(f){
+ const title=f.title||"Your title",body=f.body||"Your message appears here as you type.";
+ let inner;
+ if(f.ch=="push") inner=`<div class="note"><div class="app"><i>N</i>Nimbus<small>now</small></div><b>${esc(title)}</b><p>${esc(body)}</p>${visHtml(f.vis)}</div>`;
+ else if(f.ch=="sms") inner=`<div class="smshead">Nimbus · Text message</div><div class="bubble">${esc(body)}</div>`;
+ else if(f.ch=="email") inner=`<div class="mail"><div class="mh">From Nimbus · ${esc(title)}</div>${visHtml(f.vis)}<div class="mb"><b>${esc(title)}</b>${esc(body)}<br><span class="cta">Show offer</span></div></div>`;
+ else inner=`<div class="inapp"><div class="bar"></div><div class="bar" style="width:60%"></div><div class="modal">${visHtml(f.vis)}<div class="t"><b>${esc(title)}</b><span style="color:var(--ink2);font-size:14px">${esc(body)}</span></div></div></div>`;
+ return `<div class="phone"><div class="sb"><span>9:41</span><span>▂▄▆ ▭</span></div>${inner}</div>`}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CHN={push:"Push",sms:"SMS",email:"Email",inapp:"In-App"};
+function create(){const f=S.f,e=S.err,lim=LIMIT[f.ch],len=f.body.length;
+ return `<main><div class="crumb">Messaging · Campaigns</div><div class="hrow"><div><h1>Create Campaign</h1><p class="lead">Set up a message, pick who receives it and when — or let AI draft the whole thing for you.</p></div>
+ <div style="display:flex;gap:12px"><button class="btn ghost" data-act="draft">Save draft</button><button class="btn dark" data-act="schedule">${f.when=="now"?"Send campaign":"Schedule campaign"} →</button></div></div>
+ <div class="cols"><div>
+ <div class="card"><div class="step"><span class="num">1</span><div><h2>Campaign details</h2><p>Name your campaign and choose a channel.</p></div></div>
+ <div class="fld"><label class="l" for="name">Campaign name</label><input class="f ${e.name?"bad":""}" id="name" data-k="name" value="${esc(f.name)}" placeholder="e.g. Holiday Warm-Up">${e.name?'<div class="err">Give your campaign a name so you can find it later.</div>':""}</div>
+ <div class="fld"><label class="l">Channel</label><div class="ch">${["push","sms","email","inapp"].map(c=>`<button class="chb ${f.ch==c?"on":""}" data-ch="${c}">${svg({push:"bell",sms:"sms",email:"mail",inapp:"phone"}[c])}${CHN[c]}</button>`).join("")}</div></div>
+ <div class="lr"><label class="l">Message content</label><button class="btn teal" data-act="regen" ${S.gen?"disabled":""}>★ ${S.gen?"Writing…":f.title?"Regenerate":"Write with AI"}</button></div>
+ <div class="${S.gen?"gen":""}">${f.ch!="sms"?`<div class="fld" style="margin-bottom:14px"><input class="f title ${e.body?"bad":""}" data-k="title" value="${esc(f.title)}" placeholder="Title"></div>`:""}
+ <div class="fld"><textarea class="f ${e.body?"bad":""}" data-k="body" placeholder="Write your message or let AI draft it">${esc(f.body)}</textarea><span class="cnt ${len>lim?"over":""}" id="cnt">${len} / ${lim}</span>${e.body?'<div class="err">Add a message, or press Write with AI.</div>':""}</div></div>
+ ${f.ai?`<div class="ai">★ AI generated your title, message${f.vis?" and a matching visual":""} — edit anything you like.</div>`:""}</div>
+ <div class="card"><div class="step"><span class="num">2</span><div><h2>Audience</h2><p>Who should receive it.</p></div></div>
+ <div class="seg">${Object.entries(SEG).map(([k,[l,n]])=>`<button class="sg ${f.seg==k?"on":""} ${f.ai&&f.aiSeg==k?"ai-pick":""}" data-seg="${k}">${l}<small>${n.toLocaleString("de-AT")}</small></button>`).join("")}</div>
+ <div class="reach"><b>${SEG[f.seg][1].toLocaleString("de-AT")}</b><span>customers will receive this ${CHN[f.ch].toLowerCase()} message</span></div></div>
+ <div class="card"><div class="step"><span class="num">3</span><div><h2>Schedule</h2><p>Send now or pick a time.</p></div></div>
+ <div class="when"><button class="wb ${f.when=="now"?"on":""}" data-when="now"><b>Send now</b><span>Goes out as soon as you confirm</span></button><button class="wb ${f.when=="later"?"on":""}" data-when="later"><b>Schedule</b><span>${f.ai?"AI suggests Friday 09:00, when your members open most":"Pick a date and time"}</span></button></div>
+ ${f.when=="later"?`<div class="dt"><input class="f" type="date" data-k="date" value="${f.date}"><input class="f" type="time" data-k="time" value="${f.time}"></div>`:""}</div>
+ </div><div class="side"><div class="card pv"><div class="hrow"><div><h3>Live preview</h3><div class="sub2">How it appears to your customer.</div></div><span class="tag">${CHN[f.ch]}</span></div><div id="pv">${preview(f)}</div></div>
+ ${f.ai?`<div class="card applied"><i>★</i><div><b>AI content applied</b><span>Title, copy and visual generated from your trigger.</span></div></div>`:""}</div></div></main>`}
+function render(){const a=document.activeElement,k=a&&a.dataset&&a.dataset.k,pos=a&&a.selectionStart;
+ $("#app").innerHTML=`<div class="shell">${nav()}${S.view=="new"?create():S.view=="overview"?overview():list()}</div>`;
+ if(k){const el=document.querySelector(`[data-k="${k}"]`);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}}
+function start(s){S.f=blank();S.err={};S.alt=0;if(s){Object.assign(S.f,{name:s.name,title:s.title,body:s.body,vis:s.vis,seg:s.seg,aiSeg:s.seg,ch:s.ch,ai:true,when:"later"});if(s.ch=="sms"){S.f.body=ALT.sms[0][1]}}S.view="new";window.scrollTo(0,0);render()}
+document.addEventListener("input",e=>{const k=e.target.dataset.k;if(!k||!S.f)return;S.f[k]=e.target.value;
+ if(k=="body"){const c=$("#cnt"),lim=LIMIT[S.f.ch];c.textContent=S.f.body.length+" / "+lim;c.classList.toggle("over",S.f.body.length>lim)}
+ if(S.err[k=="title"?"body":k]){S.err={};render();return}
+ $("#pv").innerHTML=preview(S.f)});
+document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+ if(d.go){S.view=d.go;S.newRow=null;render();window.scrollTo(0,0)}
+ else if(d.new!==undefined)start(null);
+ else if(d.sugg)start(SUGG.find(s=>s.id==d.sugg));
+ else if(d.ch){S.f.ch=d.ch;if(S.f.ai){const a=ALT[d.ch][0];S.f.title=a[0];S.f.body=a[1]}render()}
+ else if(d.seg){S.f.seg=d.seg;render()}
+ else if(d.when){S.f.when=d.when;render()}
+ else if(d.act=="regen"){S.gen=true;render();setTimeout(()=>{const L=ALT[S.f.ch];S.alt=(S.alt+(S.f.title?1:0))%L.length;S.f.title=L[S.alt][0];S.f.body=L[S.alt][1];if(!S.f.vis&&S.f.ch!="sms")S.f.vis=SUGG[0].vis;if(!S.f.name)S.f.name="Holiday Warm-Up 2025";S.f.ai=true;S.gen=false;S.err={};render()},900)}
+ else if(d.act=="draft"||d.act=="schedule"){const f=S.f;S.err={};if(!f.name.trim())S.err.name=1;if(!f.body.trim())S.err.body=1;
+  if(d.act=="schedule"&&Object.keys(S.err).length){render();toast("Fill in the highlighted fields first");return}
+  const row={n:f.name||"Untitled campaign",c:CHN[f.ch],a:SEG[f.seg][0],s:d.act=="draft"?"draft":f.when=="now"?"live":"sched",sent:f.when=="now"&&d.act!="draft"?SEG[f.seg][1].toLocaleString("en"):"—",conv:"—"};
+  CAMPS.unshift(row);S.newRow=0;S.view="list";S.err={};render();window.scrollTo(0,0);
+  toast(d.act=="draft"?"Draft saved":f.when=="now"?"Campaign sent to "+row.sent+" customers":"Campaign scheduled for "+new Date(f.date).toLocaleDateString("en-GB",{day:"numeric",month:"short"})+", "+f.time)}
+ else if(d.soon)toast(d.soon+" is not part of this prototype");
+});
+render();
+</script>
+</body>
+</html>

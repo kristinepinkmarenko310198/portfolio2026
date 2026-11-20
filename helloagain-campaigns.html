@@ -1,0 +1,452 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>x-dc{display:none!important}</style><script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script><script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./theme.css">
+<style>
+html,body{background:#0F1111;color:#E5E5E4}
+</style>
+<script src="./casestudies.js"></script>
+<script src="./fx.js"></script>
+</helmet>
+
+<div data-progress="" class="progress"></div>
+
+<!-- TOP BAR -->
+<div class="cs-top">
+  <div class="wrap">
+    <a href="index.html" class="back">← Main page</a>
+    <sc-if value="{{ scrolled }}" hint-placeholder-val="{{ false }}"><a href="#top" class="back">Back to top ↑</a></sc-if>
+    <sc-if value="{{ notScrolled }}" hint-placeholder-val="{{ true }}"><a href="case-studies.html" class="back">All case studies</a></sc-if>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header id="top" class="wrap" style="padding-top:130px">
+  <p data-reveal="" class="mono accent" style="margin:0 0 22px">{{ num }} — {{ client }}</p>
+  <h1 data-reveal="" class="cs-title">{{ name }}</h1>
+  <div data-reveal="" class="cs-meta">
+    <div><p class="mono">Client</p><p class="v">{{ client }}</p></div>
+    <div><p class="mono">Role</p><p class="v">{{ role }}</p></div>
+    <div><p class="mono">Timeline</p><p class="v">{{ year }}</p></div>
+    <div><p class="mono">Context</p><p class="v">{{ clientMeta }}</p></div>
+  </div>
+  <sc-if value="{{ noPrototype }}" hint-placeholder-val="{{ false }}">
+    <div data-reveal="" class="cs-visual">
+      <sc-if value="{{ hasCoverImage }}" hint-placeholder-val="{{ false }}"><img src="{{ coverImage }}" alt="{{ heroArtLabel }}"></sc-if>
+      <sc-if value="{{ noCoverImage }}" hint-placeholder-val="{{ true }}"><span class="mono">{{ heroArtLabel }}</span></sc-if>
+    </div>
+  </sc-if>
+  <sc-if value="{{ showConfidentialityNote }}" hint-placeholder-val="{{ false }}">
+    <p class="note" style="margin:16px 0 0;font-size:14px;max-width:720px">Due to confidentiality agreements, product screens cannot be displayed. The visuals shown are reconstructed or illustrative representations. The case study focuses on the UX process, business impact, and design decisions.</p>
+  </sc-if>
+</header>
+
+<!-- PROTOTYPE -->
+<sc-if value="{{ hasPrototype }}" hint-placeholder-val="{{ false }}">
+<section class="wrap" style="padding-top:40px">
+  <div class="{{ protoCls }}">
+    <sc-if value="{{ showSwitch }}" hint-placeholder-val="{{ true }}">
+    <div class="proto-switch proto-switch-side" role="group" aria-label="Prototype view">
+      <button type="button" class="{{ mobileBtnCls }}" aria-pressed="{{ isMobileStr }}" onclick="{{ showMobile }}">Mobile</button>
+      <button type="button" class="{{ desktopBtnCls }}" aria-pressed="{{ isDesktopStr }}" onclick="{{ showDesktop }}">Desktop</button>
+    </div>
+    </sc-if>
+    <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ true }}">
+      <div class="proto-phones">
+        <sc-if value="{{ hasBefore }}" hint-placeholder-val="{{ false }}">
+          <figure class="proto-fig"><div class="proto-phone"><div class="proto-fit" data-fit="390x844"><iframe src="{{ beforeSrc }}" title="{{ name }}: previous design" loading="lazy"></iframe></div></div><figcaption><b>Before</b> Everything on one screen</figcaption></figure>
+        </sc-if>
+        <figure class="proto-fig"><div class="proto-phone"><div class="proto-fit" data-fit="390x844"><iframe src="{{ prototypeSrc }}" title="{{ name }} mobile prototype" loading="lazy"></iframe></div></div><sc-if value="{{ hasBefore }}" hint-placeholder-val="{{ false }}"><figcaption><b>After</b> One question at a time</figcaption></sc-if></figure>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ false }}">
+      <div class="proto-browser">
+        <div class="proto-bar"><i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i><span>{{ prototypeUrl }}</span>
+          <button type="button" class="proto-expand" onclick="{{ openExpanded }}" aria-label="Expand the prototype to full screen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>Expand</button>
+        </div>
+        <div class="proto-fit" data-fit="1440x900">
+          <sc-if value="{{ showPoster }}" hint-placeholder-val="{{ false }}">
+            <button type="button" class="proto-poster" onclick="{{ startPrototype }}" aria-label="Start the {{ name }} prototype">
+              <sc-if value="{{ hasVideo }}" hint-placeholder-val="{{ false }}"><video src="{{ prototypeVideo }}" poster="{{ prototypeVideoPoster }}" autoplay="" muted="" loop="" playsinline="" preload="auto" aria-hidden="true"></video></sc-if>
+              <sc-if value="{{ noVideo }}" hint-placeholder-val="{{ true }}"><img src="{{ prototypePoster }}" alt=""></sc-if>
+              <span class="proto-play"><span class="pp-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"></path></svg></span>Try the prototype</span>
+            </button>
+          </sc-if>
+          <sc-if value="{{ showFrame }}" hint-placeholder-val="{{ true }}"><iframe src="{{ prototypeSrc }}" title="{{ name }} desktop prototype" loading="lazy"></iframe></sc-if>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</section>
+</sc-if>
+
+<!-- CHAPTERS INDEX -->
+<section class="wrap" style="padding-top:72px">
+  <div data-reveal="" class="cs-col" style="max-width:none">
+    <p class="toc-cap">{{ tocCaption }}</p>
+    <nav class="toc" aria-label="Chapters">
+      <div>
+        <p class="toc-group">Problem framing</p>
+        <a href="#chap-01" class="toc-item"><span>01 —</span>Overview</a>
+        <a href="#chap-02" class="toc-item"><span>02 —</span>The challenge</a>
+      </div>
+      <div>
+        <p class="toc-group">Process</p>
+        <sc-if value="{{ hasApproach }}" hint-placeholder-val="{{ true }}"><a href="#chap-03" class="toc-item"><span>03 —</span>My approach</a></sc-if>
+        <a href="#chap-04" class="toc-item"><span>04 —</span>Process highlight</a>
+      </div>
+      <div>
+        <p class="toc-group">Outcome</p>
+        <a href="#chap-05" class="toc-item"><span>05 —</span>The impact</a>
+        <sc-if value="{{ hasQuote }}" hint-placeholder-val="{{ true }}"><a href="#chap-06" class="toc-item"><span>06 —</span>In their words</a></sc-if>
+      </div>
+    </nav>
+    <div class="chips" style="margin-top:34px">
+      <sc-for list="{{ tags }}" as="t" hint-placeholder-count="3"><span class="chip">{{ t }}</span></sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- 01 OVERVIEW -->
+<section id="chap-01" class="wrap chap" data-chap="01 · Overview">
+  <div class="cs-col">
+    <p class="chap-label">01 — Overview</p>
+    <p data-reveal="" class="lead">{{ summary }}</p>
+    <div data-reveal="" class="prose"><p>{{ overview }}</p></div>
+  </div>
+</section>
+
+<!-- 02 CHALLENGE -->
+<section id="chap-02" class="wrap chap" data-chap="02 · The challenge">
+  <div class="cs-col">
+    <p class="chap-label">02 — The challenge</p>
+    <sc-if value="{{ hasPersonas }}" hint-placeholder-val="{{ false }}">
+    <div data-reveal="" class="personas-block">
+      <p class="mono" style="margin:0 0 20px">Who I designed for</p>
+      <div class="persona-grid">
+        <sc-for list="{{ personas }}" as="p" hint-placeholder-count="2">
+          <article class="persona">
+            <sc-if value="{{ p.avatar }}"><img class="persona-avatar" src="{{ p.avatar }}" alt="" loading="lazy"></sc-if>
+            <h3 class="persona-name">{{ p.name }}</h3>
+            <p class="persona-role">{{ p.role }}</p>
+            <p class="persona-item"><span class="persona-k">Goals</span><span>{{ p.goals }}</span></p>
+            <p class="persona-item"><span class="persona-k">Frustrations</span><span>{{ p.frustrations }}</span></p>
+          </article>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+    <div data-reveal="" class="prose"><p>{{ challenge }}</p></div>
+    <div data-reveal="" style="margin-top:34px">
+      <p class="mono" style="margin:0">Goals</p>
+      <ul class="checklist">
+        <sc-for list="{{ goals }}" as="g" hint-placeholder-count="3">
+          <li><span class="ck"><svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>{{ g }}</li>
+        </sc-for>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 03 APPROACH -->
+<sc-if value="{{ hasApproach }}" hint-placeholder-val="{{ true }}">
+<section id="chap-03" class="wrap chap" data-chap="03 · My approach">
+  <div class="cs-col">
+    <p class="chap-label">03 — My approach</p>
+    <div>
+      <sc-for list="{{ approach }}" as="a" hint-placeholder-count="4">
+        <div data-reveal="" class="srow">
+          <span class="n">{{ a.n }}</span>
+          <h3>{{ a.title }}</h3>
+          <p>{{ a.body }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+</sc-if>
+
+<!-- 04 PROCESS HIGHLIGHT -->
+<section id="chap-04" class="wrap chap" data-chap="04 · Process highlight">
+  <div class="cs-col">
+    <p class="chap-label">04 — Process highlight</p>
+    <p data-reveal="" class="bq" style="margin-top:0;max-width:44ch">{{ process }}</p>
+  </div>
+</section>
+
+<!-- 05 IMPACT -->
+<section id="chap-05" class="wrap chap" data-chap="05 · The impact">
+  <div class="cs-col">
+    <p class="chap-label">05 — The impact</p>
+    <p data-reveal="" class="lead">{{ kicker }}</p>
+    <div class="cards3">
+      <sc-for list="{{ impact }}" as="i" hint-placeholder-count="3">
+        <div data-reveal="" class="cut"><div class="cut-in">
+          <div class="impact-num">{{ i.stat }}</div>
+          <p class="body" style="margin-top:14px;font-size:15px">{{ i.label }}</p>
+        </div></div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- 06 QUOTE -->
+<sc-if value="{{ hasQuote }}" hint-placeholder-val="{{ true }}">
+<section id="chap-06" class="wrap chap" data-chap="06 · In their words">
+  <div class="cs-col">
+    <p class="chap-label">06 — In their words</p>
+    <blockquote data-reveal="" class="bq" style="margin-top:0">
+      “{{ quoteText }}”
+      <span class="bq-by">{{ quoteAuthor }} · {{ quoteRole }}</span>
+    </blockquote>
+  </div>
+</section>
+</sc-if>
+
+<!-- NEXT -->
+<section class="wrap chap">
+  <a data-reveal="" data-cursor="Next" href="{{ nextHref }}" class="next-card">
+    <div class="cut" style="--c:26px"><div class="cut-in">
+      <p class="mono" style="margin:0 0 18px">Next case study</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
+        <div>
+          <h2 class="cs-title" style="margin-bottom:10px;font-size:clamp(28px,3.6vw,48px)">{{ nextName }}</h2>
+          <span style="font-size:15px;color:#8A8C81">{{ nextClient }}</span>
+        </div>
+        <span class="circle" style="width:64px;height:64px;font-size:24px" aria-hidden="true"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+      </div>
+    </div></div>
+  </a>
+</section>
+
+<!-- EXPANDED PROTOTYPE -->
+<sc-if value="{{ expanded }}" hint-placeholder-val="{{ false }}">
+<div class="proto-modal" role="dialog" aria-modal="true" aria-label="{{ name }} prototype, full screen">
+  <div class="proto-modal-bar"><span>{{ name }} · {{ prototypeUrl }}</span><button type="button" class="proto-expand" onclick="{{ closeExpanded }}" aria-label="Close full screen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>Close</button></div>
+  <div class="proto-modal-body"><div class="proto-fit" data-fitfull="1"><iframe src="{{ prototypeSrc }}" title="{{ name }} prototype, full screen"></iframe></div></div>
+</div>
+</sc-if>
+
+<!-- FLOATING CHAPTER PILL -->
+<sc-if value="{{ showPill }}" hint-placeholder-val="{{ false }}">
+<div class="float-pill">
+  <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="rgba(242,241,236,.18)" stroke-width="2"></circle><circle data-ring="" cx="10" cy="10" r="8" fill="none" stroke="#C6F24E" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.27" stroke-dashoffset="50.27" transform="rotate(-90 10 10)"></circle></svg>
+  <span class="pill-label">{{ activeLabel }}</span>
+  <a href="{{ pillHref }}" class="pill-btn">{{ pillText }}</a>
+</div>
+</sc-if>
+
+<!-- CONTACT / FOOTER -->
+<footer id="contact" class="contact">
+  <div class="wrap contact-grid">
+    <div class="contact-left">
+      <p class="mono" style="margin:0 0 26px">Get in touch</p>
+      <h2 class="h-xl" style="font-size:clamp(44px,6.2vw,100px);color:var(--ink)">Let's build something <span class="accent">great.</span></h2>
+    </div>
+    <div class="contact-right">
+      <p class="mono" style="margin:0 0 10px">Start here</p>
+      <div class="c-row">
+        <a href="mailto:uiuxkristine@gmail.com">uiuxkristine@gmail.com</a>
+        <button type="button" class="c-copy" data-copy="uiuxkristine@gmail.com" aria-label="Copy email address"><span class="ico-l">Copy <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="1.5"></rect><path d="M5 15V5.5A1.5 1.5 0 0 1 6.5 4H15"></path></svg></span><span class="ok"><svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg> Copied</span></button>
+      </div>
+      <a class="c-row" href="tel:+4368181704973">+43 681 81704973 <span aria-hidden="true"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></a>
+      <a class="c-row" href="https://www.linkedin.com/in/kristina-ponomarenko-5aa919194/" target="_blank" rel="noopener">LinkedIn <span aria-hidden="true"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></span></a>
+      <div class="zones">
+        <div class="zone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E5E5E4" stroke-width="1.2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"></path></svg><span class="zone-t">Linz / remote</span></div>
+        <div class="zone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E5E5E4" stroke-width="1.2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg><span class="zone-t">LNZ<b data-clock="">-</b></span></div>
+        <div class="zone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E5E5E4" stroke-width="1.2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg><span class="zone-t">You<b data-clock-local="">-</b></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bar">
+    <div class="wrap">
+      <span style="font-size:12px;color:#8A8C81">© 2026 Kristina Ponomarenko · Linz, Austria</span>
+      <span style="font-size:12px;color:#8A8C81">UI/UX Lead · AI-Native Design Systems · <span data-clock="">-</span> CET</span>
+    </div>
+  </div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;year&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  // Which case study this page shows. Empty = read ?id= from the address (falls back to the first study).
+  fixedSlug = "helloagain-campaigns";
+  state = { scrolled: false, active: "Opening", pastImpact: false, protoView: "mobile", live: false, expanded: false };
+
+  // scale each prototype iframe from its real size (390x844 or 1440x900) to the frame width
+  _fitProto() {
+    document.querySelectorAll("[data-fitfull]").forEach((box) => {
+      const body = box.parentElement, aw = body.clientWidth, ah = body.clientHeight;
+      const W = Math.max(1280, aw), k = aw / W, H = Math.round(ah / k);
+      box.style.width = aw + "px"; box.style.height = ah + "px";
+      const f = box.querySelector("iframe");
+      if (f) { f.style.width = W + "px"; f.style.height = H + "px"; f.style.transform = "scale(" + k + ")"; }
+    });
+    document.querySelectorAll("[data-fit]").forEach((box) => {
+      const [w, h] = box.getAttribute("data-fit").split("x").map(Number);
+      const frame = box.parentElement;
+      const phone = frame.classList.contains("proto-phone");
+      const big = phone && !!frame.closest(".has-before");
+      const avail = phone ? (big ? 352 : 282) : frame.parentElement.clientWidth;
+      const maxH = window.innerHeight * (big ? 0.84 : 0.72) - 18;
+      const k = Math.max(0.2, phone ? Math.min(avail / w, maxH / h) : avail / w);
+      // desktop: fill the width, and let the app's height shrink so the whole frame fits one screen
+      const H = phone ? h : Math.max(560, Math.min(h, Math.round((window.innerHeight - 120) / k)));
+      box.style.width = Math.round(w * k) + "px";
+      box.style.height = Math.round(H * k) + "px";
+      frame.style.width = Math.round(w * k) + (phone ? 18 : 0) + "px";
+      const f = box.querySelector("iframe");
+      if (f) { f.style.width = w + "px"; f.style.height = H + "px"; f.style.transform = "scale(" + k + ")"; }
+    });
+  }
+
+  _current() {
+    const bySlug = window.CASE_STUDY_BY_SLUG || {};
+    const all = window.CASE_STUDIES || [];
+    if (this.fixedSlug && bySlug[this.fixedSlug]) return bySlug[this.fixedSlug];
+    let id = "";
+    try { id = new URLSearchParams(window.location.search).get("id") || ""; } catch (e) {}
+    return bySlug[id] || all[0] || null;
+  }
+
+  componentDidMount() {
+    if (window.PortfolioFX) window.PortfolioFX.init();
+    const C = 50.27;
+    this._onScroll = () => {
+      const y = window.scrollY, vh = window.innerHeight;
+      const max = document.documentElement.scrollHeight - vh;
+      const p = max > 0 ? Math.min(1, y / max) : 0;
+      const bar = document.querySelector("[data-progress]");
+      if (bar) bar.style.width = (p * 100) + "%";
+      const ring = document.querySelector("[data-ring]");
+      if (ring) ring.setAttribute("stroke-dashoffset", String(C * (1 - p)));
+      let active = "Opening";
+      document.querySelectorAll("[data-chap]").forEach((c) => {
+        if (c.getBoundingClientRect().top < vh * 0.4) active = c.getAttribute("data-chap");
+      });
+      const imp = document.getElementById("chap-05");
+      const pastImpact = !!imp && imp.getBoundingClientRect().top < vh * 0.4;
+      const foot = document.getElementById("contact");
+      const nearFooter = !!foot && foot.getBoundingClientRect().top < vh - 80;
+      // Hide pill while the hero prototype is in view — only show after the user reaches the content chapters.
+      const firstChap = document.getElementById("chap-01");
+      const pastHero = !!firstChap && firstChap.getBoundingClientRect().top < vh * 0.8;
+      const scrolled = pastHero && !nearFooter;
+      const s = this.state;
+      if (s.active !== active || s.pastImpact !== pastImpact || s.scrolled !== scrolled) this.setState({ active, pastImpact, scrolled });
+    };
+    window.addEventListener("scroll", this._onScroll, { passive: true });
+    this._onScroll();
+    this._fit = () => this._fitProto();
+    window.addEventListener("resize", this._fit);
+    window.addEventListener("keydown", this._esc);
+    this._fitProto();
+    setTimeout(this._fit, 300);
+    const s = this._current();
+    if (s) document.title = s.name + " - Kristina Ponomarenko";
+  }
+  componentDidUpdate() { this._fitProto(); }
+  _esc = (e) => { if (e.key === "Escape" && this.state.expanded) { this.setState({ expanded: false }); document.documentElement.style.overflow = ""; } };
+  componentWillUnmount() { window.removeEventListener("keydown", this._esc); window.removeEventListener("scroll", this._onScroll); window.removeEventListener("resize", this._fit); }
+
+  renderVals() {
+    const s = this._current();
+    const all = window.CASE_STUDIES || [];
+    if (!s) return {};
+    const idx = all.findIndex((x) => x.slug === s.slug);
+    const next = all[(idx + 1) % all.length] || s;
+
+    const coverImages = {
+      "helloagain-campaigns": "uploads/campaign.png",
+      "cgm-design-system": "uploads/Screenshot 2026-07-04 at 20.24.03.png",
+      "cgm-opt": "uploads/Bildschirmfoto 2026-05-22 um 11.00.06.png",
+      "checkin-botlens": "uploads/botlens-b90e9b22ee30da2ff2b49ff4d06a34ed.png",
+      "checkin-age": "uploads/01.png",
+      "helloagain-onboarding": "uploads/Screens-4f4df52f.png",
+    };
+    const coverImage = s.cover || coverImages[s.slug] || "";
+    const chapters = s.quote ? 6 : 5;
+    const modes = s.prototypeModes || ["mobile", "desktop"];
+    const view = modes.includes(this.state.protoView) ? this.state.protoView : modes[0];
+
+    return {
+      scrolled: this.state.scrolled,
+      notScrolled: !this.state.scrolled,
+      activeLabel: this.state.active,
+      pillHref: this.state.pastImpact ? "#top" : "#chap-05",
+      pillText: this.state.pastImpact ? "Read from the start ↑" : "Jump to the impact ↓",
+      showPill: this.state.scrolled,
+      tocCaption: chapters + " chapters. The impact is at 05.",
+      hasCoverImage: !!coverImage,
+      noCoverImage: !coverImage,
+      coverImage,
+      showConfidentialityNote: s.slug === "cgm-opt" || s.slug === "helloagain-campaigns" || s.slug === "checkin-botlens",
+      num: s.num,
+      name: s.name,
+      client: s.client,
+      clientMeta: s.clientMeta,
+      role: s.role,
+      year: this.props.year || s.year,
+      kicker: s.kicker,
+      summary: s.summary,
+      overview: s.overview,
+      challenge: s.challenge,
+      process: s.process,
+      tags: s.tags,
+      goals: s.goals,
+      approach: (s.approach || []).map((a, i) => ({ n: String(i + 1).padStart(2, "0"), title: a.title, body: a.body })),
+      impact: s.impact,
+      quoteText: s.quote ? s.quote.text : "",
+      quoteAuthor: s.quote ? s.quote.author : "",
+      quoteRole: s.quote ? s.quote.role : "",
+      hasQuote: !!s.quote,
+      hasPrototype: !!s.prototype,
+      noPrototype: !s.prototype,
+      hasPersonas: !!(s.personas && s.personas.length),
+      personas: s.personas || [],
+      hasApproach: !!(s.approach && s.approach.length),
+      prototypeSrc: s.prototype ? s.prototype + "?embed=1" : "",
+      hasBefore: !!s.prototypeBefore,
+      beforeSrc: s.prototypeBefore ? s.prototypeBefore + (s.prototypeBefore.includes("?") ? "&" : "?") + "embed=1" : "",
+      isMobile: view === "mobile",
+      isDesktop: view === "desktop",
+      isMobileStr: String(view === "mobile"),
+      isDesktopStr: String(view === "desktop"),
+      mobileBtnCls: view === "mobile" ? "filter is-on" : "filter",
+      desktopBtnCls: view === "desktop" ? "filter is-on" : "filter",
+      protoCls: (view === "desktop" ? "proto is-desktop" : (s.prototypeBefore ? "proto has-before" : "proto")) + (modes.length > 1 ? " has-switch" : ""),
+      showSwitch: modes.length > 1,
+      prototypeUrl: s.prototypeUrl || "",
+      showPoster: !!s.prototypePoster && !this.state.live,
+      showFrame: !s.prototypePoster || this.state.live,
+      prototypePoster: s.prototypePoster || "",
+      hasVideo: !!s.prototypeVideo,
+      noVideo: !s.prototypeVideo,
+      prototypeVideo: s.prototypeVideo || "",
+      prototypeVideoPoster: s.prototypeVideoPoster || s.prototypePoster || "",
+      startPrototype: () => this.setState({ live: true }),
+      expanded: this.state.expanded,
+      openExpanded: () => { this.setState({ expanded: true, live: true }); document.documentElement.style.overflow = "hidden"; },
+      closeExpanded: () => { this.setState({ expanded: false }); document.documentElement.style.overflow = ""; },
+      showMobile: () => this.setState({ protoView: "mobile" }),
+      showDesktop: () => this.setState({ protoView: "desktop" }),
+      prototypeNote: s.prototypeNote || "",
+      heroArtLabel: s.gallery[0] + " - hero screenshot",
+      nextHref: next.page || ("case-study.html?id=" + next.slug),
+      nextName: next.name,
+      nextClient: next.client,
+    };
+  }
+}
+</script>
+
+
+</body></html>

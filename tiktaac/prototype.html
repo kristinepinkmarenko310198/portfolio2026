@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TikTaac prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Dots&family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,600;6..12,700&family=Kanit:wght@900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#161619; --ink:#FFFFFF; --muted:#A2A2A3; --line:#454547; --soft:rgba(255,251,251,.2);
+  --panel:#1F1F23; --panel2:#26262B; --accent:#FFFFFF;
+  --display:'Zen Dots',system-ui,sans-serif; --body:'Nunito Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0B0B0D;color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid #fff;outline-offset:2px}
+::selection{background:#fff;color:#161619}
+
+/* stage: framed phone on wide screens, full-bleed when embedded or on phones */
+.stage{height:100%;min-height:0;display:flex;align-items:center;justify-content:center;gap:48px;padding:20px 16px;box-sizing:border-box;overflow:hidden}
+/* the phone keeps its real 390x844 layout and is scaled down to fit the window */
+.devwrap{flex:none;width:calc(390px * var(--s,1));height:calc(844px * var(--s,1))}
+.devwrap .device{transform:scale(var(--s,1));transform-origin:top left}
+.embed .devwrap{width:100%;height:100%}
+.embed .devwrap .device{transform:none}
+.device{position:relative;width:390px;height:844px;border-radius:54px;padding:12px;background:#000;box-shadow:0 0 0 1.5px #2a2a2e,0 40px 80px rgba(0,0,0,.6)}
+.screen{position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:var(--bg)}
+.embed .stage{padding:0;display:block;min-height:0;height:100%}
+.embed .device{width:100%;height:100%;border-radius:0;padding:0;box-shadow:none;background:var(--bg)}
+.embed .screen{border-radius:0}
+.embed .aside{display:none}
+@media (max-width:520px){.devwrap{width:100%;height:100%}.devwrap .device{transform:none}.stage{padding:0;display:block;height:100%}.device{width:100%;height:100%;border-radius:0;padding:0;box-shadow:none}.screen{border-radius:0}.aside{display:none}}
+.aside{max-width:280px;color:var(--muted);font-size:14px;line-height:1.55}
+.aside h1{font-family:var(--display);font-weight:400;color:#fff;font-size:28px;line-height:1.1;margin:0 0 14px}
+.aside ol{padding-left:18px;margin:14px 0 0}.aside li{margin:6px 0}
+.aside .role{display:flex;gap:6px;margin-top:22px}
+.chipbtn{border:1px solid var(--line);border-radius:100px;padding:9px 16px;font-size:14px;color:var(--muted);transition:all .2s}
+.chipbtn.on{background:#fff;color:var(--bg);border-color:#fff}
+
+/* app chrome */
+.status{position:absolute;top:0;left:0;right:0;height:44px;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:0 28px 0 32px;font-size:15px;font-weight:600;z-index:30;pointer-events:none}
+.status .ind{display:flex;gap:6px;align-items:center}
+.embed .status{display:none}
+.scroller{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-top:44px}
+.embed .scroller{padding-top:0}
+.scroller::-webkit-scrollbar{display:none}
+.hdr{position:sticky;top:0;z-index:20;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:linear-gradient(var(--bg) 70%,rgba(22,22,25,0))}
+.logo{display:flex;align-items:center;gap:7px;font-family:'Kanit',sans-serif;font-weight:900;font-size:21px;letter-spacing:.01em}
+.hdr .icons{display:flex;gap:4px}
+.ibtn{width:44px;height:44px;display:grid;place-items:center;border-radius:12px;transition:background .2s}
+.ibtn:hover{background:rgba(255,255,255,.06)}
+.view{animation:enter .38s cubic-bezier(.22,1,.36,1)}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view{animation:none}}
+
+/* type */
+.d1{font-family:var(--display);font-weight:400;font-size:48px;line-height:1;margin:0;letter-spacing:-.01em}
+.d2{font-family:var(--display);font-weight:400;font-size:32px;line-height:1.1;margin:0}
+.d3{font-family:var(--display);font-weight:400;font-size:24px;line-height:1.1;margin:0}
+.p{font-size:14px;line-height:1.3;color:var(--muted);margin:0}
+.p16{font-size:16px;line-height:1.25;color:var(--muted);margin:0}
+.meta{font-size:12px;font-weight:300;letter-spacing:.25em;color:var(--muted);text-transform:uppercase}
+.pad{padding:0 16px}
+.sec{padding:56px 16px 0}
+.sec>.d2{margin-bottom:16px}
+
+/* controls */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;border-radius:100px;background:#fff;color:var(--bg);font-weight:600;font-size:16px;transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.985)}
+.btn.ghost{background:transparent;color:#fff;border:1px solid var(--line)}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+.tag{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--muted)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:38px;padding:0 18px;border:1px solid var(--line);border-radius:100px;font-size:14px;color:var(--muted);transition:all .2s}
+.chip.on{background:#fff;color:var(--bg);border-color:#fff;font-weight:600}
+.field{display:block;margin-bottom:16px}
+.field span{display:block;font-size:12px;color:var(--muted);letter-spacing:.06em;margin-bottom:8px}
+.field input{width:100%;height:52px;border-radius:12px;border:1px solid var(--line);background:transparent;color:#fff;padding:0 16px;font:inherit;font-size:16px;caret-color:#fff}
+.field input:focus{outline:none;border-color:#fff}
+.search{display:flex;align-items:center;gap:10px;height:48px;margin:0 16px 16px;border:1px solid var(--line);border-radius:100px;padding:0 18px;color:var(--muted)}
+.search input{flex:1;background:none;border:0;color:#fff;font:inherit;font-size:15px;outline:none}
+
+/* cards */
+.hscroll{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 16px}
+.hscroll::-webkit-scrollbar{display:none}
+.feat{flex:none;width:340px;display:flex;gap:20px;align-items:center;scroll-snap-align:start;text-align:left}
+.feat .ph{width:185px;height:300px;border-radius:16px;overflow:hidden;flex:none}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.card{flex:none;width:295px;border:1px solid var(--soft);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:16px;scroll-snap-align:start;text-align:left}
+.card .ph{height:240px;border-radius:10px;overflow:hidden}
+.card:hover .ph img,.feat:hover .ph img,.row:hover .ph img{transform:scale(1.04)}
+.row{display:flex;gap:14px;align-items:center;width:100%;padding:12px 0;border-bottom:1px solid #2a2a2e;text-align:left}
+.row .ph{width:92px;height:92px;border-radius:12px;overflow:hidden;flex:none}
+.ch{font-size:20px;font-weight:600;line-height:1.2;margin:0}
+.sub{font-size:12px;font-weight:300;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin:8px 0 0}
+.panel{border:1px solid #2e2e33;background:var(--panel);border-radius:16px;padding:18px}
+
+/* event */
+.hero-img{position:relative;height:392px;margin-top:-72px}
+.hero-img img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-img::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(22,22,25,.55),rgba(22,22,25,0) 30%,rgba(22,22,25,0) 70%,var(--bg))}
+.back{position:absolute;left:16px;top:84px;z-index:2;width:48px;height:48px;border-radius:8px;background:rgba(22,22,25,.6);backdrop-filter:blur(8px);display:grid;place-items:center}
+.tier{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:16px;border:1px solid var(--line);border-radius:14px;text-align:left;transition:border-color .2s,background .2s}
+.tier+.tier{margin-top:10px}
+.tier.on{border-color:#fff;background:rgba(255,255,255,.04)}
+.tier.sold{opacity:.4;cursor:not-allowed}
+.radio{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;flex:none}
+.tier.on .radio{border-color:#fff}
+.tier.on .radio::after{content:"";width:10px;height:10px;border-radius:50%;background:#fff}
+.count{font-family:var(--display);font-size:20px;letter-spacing:.04em}
+.qty{display:flex;align-items:center;gap:16px}
+.qty button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center}
+.qty b{font-family:var(--display);font-weight:400;font-size:20px;min-width:24px;text-align:center}
+.sumrow{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-bottom:1px solid #2a2a2e;font-size:16px}
+.pay{display:flex;align-items:center;gap:14px;width:100%;height:60px;padding:0 18px;border:1px solid var(--line);border-radius:14px;text-align:left;font-size:16px}
+.pay+.pay{margin-top:10px}
+.pay.on{border-color:#fff}
+.steps{display:flex;gap:6px;margin:0 16px 22px}
+.steps i{flex:1;height:3px;border-radius:3px;background:#2e2e33}
+.steps i.on{background:#fff}
+
+/* ticket */
+.ticket{margin:0 16px;border-radius:20px;background:#fff;color:var(--bg);padding:22px;position:relative}
+.ticket .qr{width:100%;aspect-ratio:1;display:block;image-rendering:pixelated;border-radius:8px}
+.ticket .cut{height:0;border-top:2px dashed #d9d9dc;margin:18px -22px;position:relative}
+.ticket .cut::before,.ticket .cut::after{content:"";position:absolute;top:-13px;width:24px;height:24px;border-radius:50%;background:var(--bg)}
+.ticket .cut::before{left:-12px}.ticket .cut::after{right:-12px}
+.tk{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.tk span{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6C6C6C}
+.tk b{font-weight:600;font-size:15px}
+.tabs{display:flex;gap:8px;padding:0 16px 20px}
+
+/* owner */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.kpi{border:1px solid #2e2e33;border-radius:16px;padding:16px;background:var(--panel)}
+.kpi.wide{grid-column:1/-1}
+.kpi small{display:block;font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.kpi strong{display:block;font-family:var(--display);font-weight:400;font-size:30px;margin-top:10px;font-variant-numeric:tabular-nums}
+.kpi .delta{font-size:13px;color:var(--muted);margin-top:6px}
+.bars{display:flex;flex-direction:column;gap:14px}
+.bar{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px}
+.bar .track{grid-column:1/-1;height:8px;border-radius:8px;background:#2a2a2e;overflow:hidden}
+.bar .fill{height:100%;border-radius:8px;background:#fff;transform-origin:left;animation:grow .9s cubic-bezier(.22,1,.36,1) both}
+@keyframes grow{from{transform:scaleX(0)}}
+.cols{display:flex;align-items:flex-end;gap:10px;height:170px;padding-top:10px}
+.cols div{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end;font-size:11px;color:var(--muted)}
+.cols i{flex:none;display:block;width:100%;border-radius:6px 6px 2px 2px;background:#fff;transform-origin:bottom;animation:rise .8s cubic-bezier(.22,1,.36,1) both}
+.cols div.lo i{background:#55555b}
+@keyframes rise{from{transform:scaleY(0)}}
+.prog{height:6px;border-radius:6px;background:#2a2a2e;margin-top:10px;overflow:hidden}
+.prog i{display:block;height:100%;background:#fff;border-radius:6px}
+
+/* scanner */
+.scan{position:relative;margin:0 16px;height:420px;border-radius:20px;overflow:hidden}
+.scan img{width:100%;height:100%;object-fit:cover;filter:brightness(.6)}
+.scan .frame{position:absolute;left:50%;top:50%;width:220px;height:220px;transform:translate(-50%,-50%)}
+.scan .frame b{position:absolute;width:42px;height:42px;border:3px solid #fff}
+.scan .frame b:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.scan .frame b:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-radius:0 14px 0 0}
+.scan .frame b:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-radius:0 0 0 14px}
+.scan .frame b:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-radius:0 0 14px 0}
+.scan .line{position:absolute;left:12px;right:12px;height:2px;background:#fff;box-shadow:0 0 18px #fff;animation:sweep 1.8s ease-in-out infinite alternate}
+@keyframes sweep{from{top:14px}to{top:204px}}
+.ok{position:absolute;inset:0;display:grid;place-items:center;background:rgba(22,22,25,.72);backdrop-filter:blur(4px);animation:enter .3s ease both}
+.okmark{width:84px;height:84px;border-radius:50%;background:#fff;color:var(--bg);display:grid;place-items:center;margin:0 auto 14px}
+
+/* menu sheet */
+.menu{position:absolute;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column;padding:44px 16px 24px;animation:enter .3s cubic-bezier(.22,1,.36,1)}
+.embed .menu{padding-top:0}
+.menu nav{display:flex;flex-direction:column;margin-top:18px}
+.menu nav button{font-family:var(--display);font-size:28px;text-align:left;padding:14px 0;border-bottom:1px solid #2a2a2e;display:flex;justify-content:space-between;align-items:center}
+.menu .grp{font-size:12px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin:26px 0 4px}
+.toast{position:absolute;left:16px;right:16px;bottom:24px;z-index:50;background:#fff;color:var(--bg);border-radius:14px;padding:14px 16px;font-weight:600;font-size:14px;display:flex;gap:10px;align-items:center;animation:enter .3s ease both}
+.foot{margin-top:64px;padding:28px 16px 40px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 28px;color:var(--muted);font-size:14px}
+.foot b{color:#fff;font-weight:400}
+.spacer{height:28px}
+
+/* ================= desktop ================= */
+.desk .scroller{padding-top:0}
+.dwrap{max-width:1440px;margin:0 auto;padding:0 64px;box-sizing:border-box}
+.dhdr{position:sticky;top:0;z-index:20;background:rgba(22,22,25,.92);backdrop-filter:blur(10px);border-bottom:1px solid #222226}
+.dhdr-in{height:92px;display:flex;align-items:center;justify-content:space-between}
+.desk .logo{font-size:25px}
+.dnav{display:flex;align-items:center;gap:40px}
+.dnav>button:not(.pill){font-size:16px;color:#BBBBBB;transition:color .2s}
+.dnav>button:not(.pill):hover,.dnav>button.on{color:#fff}
+.pill{display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 28px;border-radius:40px;background:#fff;color:var(--bg);font-weight:700;font-size:16px;white-space:nowrap}
+.pill.ghost{background:transparent;color:#BBBBBB;border:1px solid var(--line);font-weight:400}
+.pill.ghost:hover{color:#fff;border-color:#fff}
+.dnav .pill+.pill{margin-left:-16px}
+.dd1{font-family:var(--display);font-weight:400;font-size:clamp(96px,10vw,160px);line-height:.98;margin:0}
+.dd2{font-family:var(--display);font-weight:400;font-size:56px;line-height:1.05;margin:0}
+.dhero{position:relative;min-height:760px;display:flex;align-items:center;overflow:hidden}
+.dhero-img{position:absolute;top:40px;right:0;bottom:40px;width:62%}
+.dhero-img img{width:100%;height:100%;object-fit:cover;display:block}
+.dhero-img::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--bg),rgba(22,22,25,.2) 45%,rgba(22,22,25,0)),linear-gradient(0deg,rgba(0,0,0,.25),rgba(0,0,0,.25))}
+.dhero-copy{position:relative;z-index:1;width:100%}
+.dfeat{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1fr);gap:96px;align-items:center;padding-top:96px}
+.dfeat .ph{aspect-ratio:706/840;border-radius:20px;overflow:hidden}
+.drow-head{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:40px}
+.dgrid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+.dgrid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:40px}
+.dcard{display:flex;flex-direction:column;gap:22px;border:1px solid var(--line);border-radius:24px;padding:24px;text-align:left;transition:border-color .25s}
+.dcard:hover{border-color:#8a8a8f}
+.dcard .ph{aspect-ratio:1/1;border-radius:14px;overflow:hidden}
+.dcard:hover .ph img{transform:scale(1.04)}
+.dcard-body{flex:1}
+.dpartner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:96px;align-items:center;padding-top:140px}
+.dpartner .ph{aspect-ratio:4/3;border-radius:20px;overflow:hidden}
+.dfilters{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:36px}
+.devent{display:grid;grid-template-columns:minmax(0,42%) minmax(0,1fr)}
+.devent-img{position:sticky;top:92px;height:calc(100vh - 92px);min-height:560px}
+.devent-img img{width:100%;height:100%;object-fit:cover;display:block}
+.devent-body{padding:72px 64px 40px 96px;max-width:860px}
+.drel{display:flex;gap:16px;align-items:stretch;margin-top:40px}
+.counter{width:190px;flex:none;border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.dwhen{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 0;border-bottom:1px solid #2a2a2e}
+.dcol{max-width:620px;margin:0 auto;padding-bottom:40px}
+.desk .dcol .ticket{margin:0 auto;max-width:420px}
+.desk .dcol .tabs{justify-content:center}
+.dash{display:grid;grid-template-columns:300px minmax(0,1fr);gap:48px;padding-top:48px;align-items:start}
+.dside{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden;position:sticky;top:120px}
+.dside button{text-align:left;padding:22px 24px;font-size:20px;color:#8f8f94;border-top:1px solid var(--line);transition:background .2s,color .2s}
+.dside button:first-child{border-top:0}
+.dside button:hover:not([disabled]){color:#fff}
+.dside button.on{background:#BBBBBB;color:#161619;font-weight:700}
+.dside button[disabled]{cursor:default;opacity:.55}
+.dkpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.dkpis .kpi{padding:24px 28px;border-radius:10px;background:transparent;border-color:var(--line)}
+.dkpis .kpi strong{font-family:var(--body);font-weight:400;font-size:44px}
+.kpi.light{background:#fff;color:var(--bg);border-color:#fff}
+.kpi.light small,.kpi.light .delta{color:#454547}
+.dpanels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:24px}
+.dpanels .panel{background:transparent;border-color:var(--line);border-radius:10px;padding:28px}
+.dmain .scan{margin:0}.dmain .pad{padding:0}
+.dfoot{margin-top:120px;border-top:1px solid var(--line);padding:40px 0 48px;font-size:18px}
+.dfoot-row{display:flex;justify-content:space-between;gap:24px}
+.dfoot-row span{display:flex;gap:44px}
+.dfoot-row b{font-weight:400}
+.dfoot-row.muted{color:#8f8f94;margin-top:64px;font-size:15px}
+@media (max-width:1200px){.dgrid4{grid-template-columns:repeat(2,minmax(0,1fr))}.dash{grid-template-columns:240px minmax(0,1fr)}.devent-body{padding-left:56px}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="aside" aria-label="About this prototype">
+    <h1>TikTaac</h1>
+    <p>Clickable demo of the event platform. Two sides of the same product:</p>
+    <ol>
+      <li>Guests discover an event, choose a ticket release and pay.</li>
+      <li>The ticket lives in the app as a QR code, next to a bar wallet.</li>
+      <li>Venue owners track sales and scan guests in at the door.</li>
+    </ol>
+    <div class="role" role="group" aria-label="Switch side">
+      <button class="chipbtn" data-role="guest">Guest</button>
+      <button class="chipbtn" data-role="owner">Venue owner</button>
+    </div>
+  </aside>
+  <div class="devwrap"><div class="device">
+    <div class="screen" id="screen">
+      <div class="status" aria-hidden="true"><span>9:41</span><span class="ind">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2a10 10 0 0 1 14 0M3.5 6.8a6.4 6.4 0 0 1 9 0M6 9.4a2.8 2.8 0 0 1 4 0"/></svg>
+        <svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#fff" opacity=".5"/><rect x="2" y="2" width="19" height="9" rx="2" fill="#fff"/><rect x="24" y="4.5" width="1.5" height="4" rx=".75" fill="#fff" opacity=".5"/></svg>
+      </span></div>
+      <div class="scroller" id="scroller"></div>
+    </div>
+  </div></div>
+</div>
+
+<script>
+(function(){
+  if (/[?&]embed=1/.test(location.search)) document.documentElement.classList.add('embed');
+  const im = (n) => n; // photos sit next to this file
+
+  // desktop layout when the prototype is embedded in a wide frame
+  const setMode = () => { const desk = document.documentElement.classList.contains('embed') && window.innerWidth >= 1000; const was = document.documentElement.classList.contains('desk'); document.documentElement.classList.toggle('desk', desk); return was !== desk; };
+  setMode();
+  window.addEventListener('resize', () => { if (setMode() && typeof render === 'function') { S.menu = false; render(false); } });
+
+  // scale the phone so the whole device fits the window
+  const fit = () => {
+    const s = Math.min(1, (window.innerHeight - 40) / 844, (window.innerWidth - (window.innerWidth > 900 ? 380 : 32)) / 390);
+    document.documentElement.style.setProperty('--s', Math.max(0.4, s).toFixed(3));
+  };
+  fit();
+  window.addEventListener('resize', fit);
+
+  const I = {
+    search:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4"/></svg>',
+    menu:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7h18M3 12h18M9 17h12"/></svg>',
+    close:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>',
+    arrow:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>',
+    star:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg>',
+    minus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14"/></svg>',
+    plus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+    check:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+    card:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/></svg>',
+    phone:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3" stroke-linecap="round"/></svg>',
+    pin:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>'
+  };
+  const LOGO = '<svg width="16" height="15" viewBox="0 0 16 15" fill="#fff" aria-hidden="true"><rect x="0" y="4" width="2" height="7" rx="1"/><rect x="3" y="2" width="2" height="11" rx="1"/><rect x="6" y="4" width="2" height="2" rx="1"/><rect x="6" y="7" width="2" height="9" rx="1"/><rect x="9" y="2" width="2" height="6" rx="1"/><rect x="9" y="9" width="2" height="2" rx="1"/><rect x="11.5" y="0" width="2" height="13" rx="1"/><rect x="14" y="3" width="2" height="7" rx="1"/></svg>';
+
+  /* data, taken from the Figma screens */
+  const EVENTS = [
+    { id:'soiree', name:'Exclusive Celestial Soirée', venue:'Marquee New York', city:'NY', date:'Fri / Dec 24 / 9:00 pm', type:'Party', rating:'9.8', img:'crew.jpg', from:46.2 },
+    { id:'lastparty', name:'The Last Party', venue:'Marquee New York', city:'NY', date:'Sat / Dec 30 / 11:00 pm', type:'Club night', rating:'9.6', img:'stage.jpg', from:38 },
+    { id:'neon', name:'Neon Glow Party', venue:'Lavo Rooftop', city:'NY', date:'Thu / Dec 21 / 10:00 pm', type:'Party', rating:'9.4', img:'neonface.jpg', from:29 },
+    { id:'disco', name:'Disco Fever Night', venue:'Le Bain', city:'NY', date:'Fri / Dec 22 / 10:30 pm', type:'Club night', rating:'9.1', img:'confetti.jpg', from:25 },
+    { id:'masq', name:'Midnight Masquerade Ball', venue:'Webster Hall', city:'NY', date:'Sat / Dec 23 / 9:00 pm', type:'Gala', rating:'9.7', img:'tunnel.jpg', from:60 },
+    { id:'vip', name:'VIP Lounge Experience', venue:'1 OAK', city:'NY', date:'Sun / Dec 24 / 11:00 pm', type:'Lounge', rating:'9.3', img:'bar.jpg', from:120 },
+    { id:'tropical', name:'Tropical Summer Splash', venue:'House of Yes', city:'NY', date:'Fri / Dec 29 / 8:00 pm', type:'Concert', rating:'8.9', img:'garden.jpg', from:35 }
+  ];
+  const TIERS = [
+    { id:'early', name:'Early bird', price:46.2, left:0, note:'Sold out' },
+    { id:'first', name:'First release', price:500, left:82, note:'82 left' },
+    { id:'second', name:'Second release', price:1000, left:60, note:'60 left' }
+  ];
+  const money = (v) => '$' + (Number.isInteger(v) ? v : v.toFixed(1));
+
+  /* state */
+  const S = { role:'guest', view:'home', ev:'soiree', tier:'first', qty:1, step:1, pay:'wallet', filter:'All', q:'', tab:'tickets', menu:false, tickets:[], balance:1200, scanned:false, toast:'' };
+  const scroller = document.getElementById('scroller');
+
+  function go(view, extra){ Object.assign(S, extra || {}, { view, menu:false }); render(true); }
+
+  const header = (title) => `
+    <div class="hdr">
+      <button class="logo" data-go="${S.role==='owner'?'analytics':'home'}" aria-label="TikTaac home">${LOGO}<span>TIKTAAC</span></button>
+      <div class="icons">
+        <button class="ibtn" data-go="events" aria-label="Search events">${I.search}</button>
+        <button class="ibtn" data-act="menu" aria-label="Open menu">${I.menu}</button>
+      </div>
+    </div>`;
+
+  const footer = () => `<div class="foot"><b>Home</b><b>About</b><b>Blog</b><b>Help</b><span style="width:100%"></span><span>Privacy policy</span><span>© All Rights Reserved</span><span>2024</span></div>`;
+
+  const V = {
+    home(){
+      const up = EVENTS.slice(1);
+      return header() + `
+      <div class="pad" style="padding-top:12px">
+        <h1 class="d1">Tonight in your city</h1>
+        <p class="p16" style="margin:16px 0 0 63px">Clubs, line-ups and ticket releases near you — pick one, pay from your phone, scan at the door</p>
+      </div>
+      <div class="ph" style="height:240px;margin-top:40px"><img src="${im('crowd.jpg')}" alt="Crowd at a night club" style="filter:grayscale(1) contrast(1.05)"></div>
+      <div class="pad" style="margin-top:40px"><button class="btn" data-go="events">Browse tonight</button></div>
+      <div style="margin-top:56px" class="hscroll" aria-label="Featured events">
+        ${EVENTS.slice(0,3).map(e=>`
+          <button class="feat" data-go="event" data-ev="${e.id}">
+            <div class="ph"><img src="${im(e.img)}" alt=""></div>
+            <div><h3 class="d3" style="font-size:24px;text-transform:uppercase">${e.name}</h3><p class="p" style="margin-top:16px">${e.date.replace(/ \/ (\d)/,' /<br>$1')}</p></div>
+          </button>`).join('')}
+      </div>
+      <div class="sec"><h2 class="d2">Upcoming events</h2></div>
+      <div class="hscroll" aria-label="Upcoming events">
+        ${up.map(e=>`
+          <button class="card" data-go="event" data-ev="${e.id}">
+            <div class="ph"><img src="${im(e.img)}" alt=""></div>
+            <div><p class="ch">${e.name}</p><p class="sub">${e.date}</p><p class="sub" style="margin-top:6px">${e.venue}</p></div>
+            <span class="btn" style="height:48px">From ${money(e.from)}</span>
+          </button>`).join('')}
+      </div>
+      <div class="sec">
+        <h2 class="d2" style="margin-bottom:8px">Become a partner</h2>
+        <p class="p" style="margin-bottom:28px">We’re proud to work with a global network of promoters, venues and artists</p>
+        <button class="btn ghost" data-act="role" data-role="owner">Open the owner dashboard</button>
+      </div>` + footer();
+    },
+
+    events(){
+      const types = ['All','Party','Club night','Concert','Gala','Lounge'];
+      const q = S.q.trim().toLowerCase();
+      const list = EVENTS.filter(e => (S.filter==='All' || e.type===S.filter) && (!q || (e.name+e.venue).toLowerCase().includes(q)));
+      return header() + `
+      <div class="pad" style="padding-top:8px;margin-bottom:20px"><h1 class="d2">Events</h1></div>
+      <label class="search">${I.search}<input id="q" type="search" placeholder="Search events or venues" value="${S.q.replace(/"/g,'&quot;')}" aria-label="Search events or venues"></label>
+      <div class="chips" role="group" aria-label="Filter by type">${types.map(t=>`<button class="chip ${S.filter===t?'on':''}" data-filter="${t}" aria-pressed="${S.filter===t}">${t}</button>`).join('')}</div>
+      <div class="pad" style="margin-top:14px">
+        ${list.length ? list.map(e=>`
+          <button class="row" data-go="event" data-ev="${e.id}">
+            <div class="ph"><img src="${im(e.img)}" alt=""></div>
+            <div style="min-width:0;flex:1"><p class="ch" style="font-size:17px">${e.name}</p><p class="sub" style="letter-spacing:.12em">${e.date}</p><p class="p" style="margin-top:6px">${e.venue} · from ${money(e.from)}</p></div>
+            <span style="color:var(--muted)">${I.arrow}</span>
+          </button>`).join('') : `<div class="panel" style="margin-top:12px;text-align:center"><p class="ch" style="font-size:17px">No events match</p><p class="p" style="margin-top:8px">Try another type or clear the search.</p><button class="btn ghost" style="margin-top:16px;height:48px" data-filter="All" data-clear="1">Show all events</button></div>`}
+      </div>` + footer();
+    },
+
+    event(){
+      const e = EVENTS.find(x=>x.id===S.ev) || EVENTS[0];
+      const tier = TIERS.find(t=>t.id===S.tier);
+      return header() + `
+      <div class="hero-img"><img src="${im(e.img)}" alt="${e.name}"><button class="back" data-go="events" aria-label="Back to events">${I.back}</button></div>
+      <div class="pad" style="margin-top:-30px;position:relative">
+        <div style="display:flex;gap:8px;margin-bottom:24px"><span class="tag">${e.type}</span><span class="tag">${e.city}</span><span class="tag">${I.star}${e.rating}</span></div>
+        <h1 class="d2" style="font-size:36px">${e.name}</h1>
+        <p class="p" style="margin-top:32px">${e.venue}</p>
+        <p class="p16" style="margin-top:8px">${e.date}</p>
+      </div>
+      <div class="sec" style="padding-top:28px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px"><p class="meta">Choose a release</p><p class="p">Release ends in <span class="count" id="cd" style="font-size:14px;color:#fff">02:35:47</span></p></div>
+        <div role="radiogroup" aria-label="Ticket release">
+        ${TIERS.map(t=>`
+          <button class="tier ${S.tier===t.id?'on':''} ${t.left?'':'sold'}" role="radio" aria-checked="${S.tier===t.id}" ${t.left?`data-tier="${t.id}"`:'aria-disabled="true"'}>
+            <span style="display:flex;gap:14px;align-items:center"><span class="radio"></span><span><span class="ch" style="font-size:18px;display:block">${t.name}</span><span class="p" style="display:block;margin-top:4px">${t.note}</span></span></span>
+            <span class="d3" style="font-size:20px">${money(t.price)}</span>
+          </button>`).join('')}
+        </div>
+        <button class="btn" style="margin-top:20px" data-go="buy" data-step="1">Buy tickets · ${money(tier.price)}</button>
+      </div>
+      <div class="sec"><h2 class="d2">About</h2><p class="p16" style="line-height:1.4">Elegant evening: elevate your style and plunge into the atmosphere of exclusivity.<br><br>Star music: performances by talented artists and DJs for an unforgettable night under the stars.</p></div>
+      <div class="sec"><h2 class="d2">Lineup</h2>
+        <div style="display:flex;gap:8px;margin-bottom:16px">${['djgirl','turntable','neonblue'].map(n=>`<div class="ph" style="width:96px;height:96px;border-radius:12px;overflow:hidden"><img src="${im(n+'.jpg')}" alt=""></div>`).join('')}</div>
+        <p class="p16" style="color:#fff;font-size:22px;line-height:1.4">Martin Garrix, Calvin Harris, The Chainsmokers</p>
+      </div>
+      <div class="sec"><h2 class="d2">${e.venue}</h2>
+        <p class="p16" style="display:flex;gap:6px;align-items:center">${I.pin}289 10th Ave, New York, NY 1001, USA</p><p class="p16" style="margin-top:12px">Open at 10:00 pm</p>
+        <div class="ph" style="height:200px;border-radius:16px;overflow:hidden;margin-top:20px"><img src="${im('map.jpg')}" alt="Map of the venue location" style="filter:grayscale(1) invert(.92) contrast(.9)"></div>
+      </div>
+      <div class="sec"><h2 class="d2">When else</h2>
+        ${['Sat / Dec 25 / 9:00 pm','Sun / Dec 26 / 9:00 pm'].map(d=>`<div style="padding:18px 0;border-bottom:1px solid #2a2a2e"><p class="ch">${e.name}</p><p class="sub">${d}</p><p class="sub" style="margin-top:6px">${e.venue}</p><button class="btn ghost" style="height:48px;margin-top:16px" data-go="buy" data-step="1">Buy tickets</button></div>`).join('')}
+      </div>` + footer();
+    },
+
+    buy(){
+      const e = EVENTS.find(x=>x.id===S.ev) || EVENTS[0];
+      const t = TIERS.find(x=>x.id===S.tier);
+      const total = t.price * S.qty;
+      const steps = `<div class="steps" aria-label="Step ${S.step} of 3">${[1,2,3].map(i=>`<i class="${i<=S.step?'on':''}"></i>`).join('')}</div>`;
+      if (S.step===1) return header() + `
+        <div class="pad" style="padding-top:8px"><button class="ibtn" data-go="event" aria-label="Back to event" style="margin-left:-10px">${I.back}</button></div>
+        ${steps}
+        <div class="pad">
+          <h1 class="d2" style="font-size:36px;margin-bottom:12px">Buy tickets</h1>
+          <p class="p16" style="margin-bottom:28px">For a safe and convenient ticket purchase, please enter your phone number</p>
+          <form id="f1">
+            <label class="field"><span>FIRST NAME</span><input required autocomplete="given-name" value="Jonathan"></label>
+            <label class="field"><span>LAST NAME</span><input required autocomplete="family-name" value="Williamson"></label>
+            <label class="field"><span>PHONE NUMBER</span><input required type="tel" autocomplete="tel" value="+39 333 555 0142"></label>
+            <p class="p" style="margin:8px 0 24px">By clicking the button, you confirm that you have read our Privacy policy and the terms and conditions of personal data processing</p>
+            <button class="btn" type="submit">Continue</button>
+          </form>
+        </div><div class="spacer"></div>`;
+      if (S.step===2) return header() + `
+        <div class="pad" style="padding-top:8px"><button class="ibtn" data-step="1" aria-label="Back" style="margin-left:-10px">${I.back}</button></div>
+        ${steps}
+        <div class="pad">
+          <h1 class="d2" style="font-size:30px">${e.name}</h1>
+          <p class="p" style="margin-top:14px">${e.venue}</p><p class="p16" style="margin-top:6px">${e.date}</p>
+          <h2 class="d3" style="margin:40px 0 8px">Order summary</h2>
+          <div class="sumrow"><span>${t.name}</span><span class="qty"><button data-qty="-1" aria-label="One ticket less" ${S.qty<=1?'disabled style="opacity:.35"':''}>${I.minus}</button><b aria-live="polite">${S.qty}</b><button data-qty="1" aria-label="One ticket more" ${S.qty>=6?'disabled style="opacity:.35"':''}>${I.plus}</button></span></div>
+          <div class="sumrow"><span class="p16">${S.qty} ticket${S.qty>1?'s':''} × ${money(t.price)}</span><span class="d3" style="font-size:20px">${money(total)}</span></div>
+          <h2 class="d3" style="margin:40px 0 16px">Choose a payment option</h2>
+          ${[['wallet',I.phone,'Pay with Google / Apple Pay'],['card',I.card,'Pay with card']].map(([k,ic,l])=>`<button class="pay ${S.pay===k?'on':''}" data-pay="${k}" aria-pressed="${S.pay===k}">${ic}<span style="flex:1">${l}</span><span class="radio" style="${S.pay===k?'border-color:#fff':''}">${S.pay===k?'<i style="width:10px;height:10px;border-radius:50%;background:#fff;display:block"></i>':''}</span></button>`).join('')}
+          ${S.pay==='card'?`<div style="margin-top:16px"><label class="field"><span>CARD NUMBER</span><input inputmode="numeric" placeholder="____ ____ ____ ____"></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><label class="field"><span>DATE</span><input placeholder="__/__"></label><label class="field"><span>CVV</span><input inputmode="numeric" placeholder="___"></label></div></div>`:''}
+          <div class="sumrow" style="border:0;margin-top:22px"><span>Total price</span><span class="d3">${money(total)}</span></div>
+          <button class="btn" style="margin-top:12px" data-act="pay">Pay ${money(total)}</button>
+          <p class="p" style="text-align:center;margin-top:12px">Demo checkout, no payment is taken</p>
+        </div><div class="spacer"></div>`;
+      return header() + `
+        ${steps}
+        <div class="pad" style="text-align:center;padding-top:30px">
+          <div class="okmark" style="background:#fff">${I.check}</div>
+          <h1 class="d2">You’re in</h1>
+          <p class="p16" style="margin:14px auto 28px;max-width:290px">${S.qty} × ${t.name} for ${e.name}. Your ticket is saved in the app and works offline at the door.</p>
+          <button class="btn" data-go="tickets" data-tab="tickets">Show my ticket</button>
+          <button class="btn ghost" style="margin-top:10px" data-go="home">Back to home</button>
+        </div>`;
+    },
+
+    tickets(){
+      const tabs = `<div class="tabs" role="tablist">${[['tickets','Tickets'],['wallet','Wallet']].map(([k,l])=>`<button class="chip ${S.tab===k?'on':''}" role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div>`;
+      if (S.tab==='wallet') return header() + `
+        <div class="pad" style="padding-top:8px;margin-bottom:20px"><h1 class="d2">Wallet</h1></div>${tabs}
+        <div class="pad">
+          <div class="panel" style="padding:24px"><p class="meta">Current balance</p><p class="d1" style="font-size:44px;margin-top:14px;font-variant-numeric:tabular-nums">${money(S.balance)}</p></div>
+          <p class="p16" style="margin:20px 0 24px;line-height:1.4">You can use this balance to buy drinks at the bar. Top up with a card below or in cash at the cashier.</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">${[20,50,100].map(v=>`<button class="btn ghost" style="height:48px" data-top="${v}">+ $${v}</button>`).join('')}</div>
+          <h2 class="d3" style="margin:36px 0 10px">Drink prices</h2>
+          ${[['Signature cocktail',12],['Prosecco',10],['Beer',8]].map(([n,p])=>`<div class="sumrow"><span>${n}</span><span>$${p}</span></div>`).join('')}
+        </div>` + footer();
+      const list = S.tickets.length ? S.tickets : [{ ev:'soiree', tier:'first', qty:1, code:'TK-24-0918' }];
+      const t = list[0], e = EVENTS.find(x=>x.id===t.ev), tr = TIERS.find(x=>x.id===t.tier);
+      return header() + `
+        <div class="pad" style="padding-top:8px;margin-bottom:20px"><h1 class="d2">My tickets</h1></div>${tabs}
+        <div class="ticket">
+          <img class="qr" src="${im('qr.png')}" alt="Ticket QR code ${t.code}">
+          <div class="cut"></div>
+          <p style="font-family:var(--display);font-size:20px;line-height:1.15;margin:0 0 16px;text-transform:uppercase">${e.name}</p>
+          <div class="tk"><div><span>Name</span><b>Jonathan Williamson</b></div><div><span>Ticket</span><b>${t.qty} × ${tr.name}</b></div><div><span>Date</span><b>${e.date.replace(/^\w+ \/ /,'')}</b></div><div><span>Place</span><b>${e.venue}</b></div></div>
+        </div>
+        <div class="pad" style="margin-top:16px"><p class="p" style="text-align:center">Show this code at the entrance · ${t.code}</p></div>
+        ${list.length>1?`<div class="sec" style="padding-top:36px"><p class="meta" style="margin-bottom:6px">Earlier purchases</p>${list.slice(1).map(x=>{const ee=EVENTS.find(y=>y.id===x.ev);return `<div class="sumrow"><span>${ee.name}</span><span class="p">${x.qty} ticket${x.qty>1?'s':''}</span></div>`}).join('')}</div>`:''}
+      ` + footer();
+    },
+
+    analytics(){
+      const rev = [['Neon Glow Party',2.8],['Midnight Masquerade Ball',2.6],['VIP Lounge Experience',2.5],['Disco Fever Night',1.4],['Tropical Summer Splash',1.1]];
+      const guests = [['Neon Glow Party',94],['Disco Fever Night',72],['Midnight Masquerade Ball',122],['VIP Lounge Experience',28],['Tropical Summer Splash',146]];
+      return header() + `
+        <div class="pad" style="padding-top:8px;margin-bottom:24px"><p class="meta" style="margin-bottom:10px">Owner dashboard</p><h1 class="d2">This week at a glance</h1><p class="d3" style="color:var(--muted);margin-top:10px;font-size:20px">Dec 15–21 · revenue, guests, releases sold</p></div>
+        <div class="kpis">
+          <div class="kpi wide"><small>Total revenue per week</small><strong style="font-size:40px">$12.4K</strong><div class="delta">+18% vs previous week</div></div>
+          <div class="kpi"><small>Guests per week</small><strong>1422</strong></div>
+          <div class="kpi"><small>Events per week</small><strong>12</strong></div>
+        </div>
+        <div class="sec" style="padding-top:36px"><div class="panel">
+          <p class="ch" style="font-size:18px">Revenue</p><p class="p" style="margin:4px 0 18px">Total income by event</p>
+          <div class="bars">${rev.map(([n,v],i)=>`<div class="bar"><span>${n}</span><span style="font-variant-numeric:tabular-nums">$${v}K</span><div class="track"><div class="fill" style="width:${v/2.8*100}%;animation-delay:${i*70}ms"></div></div></div>`).join('')}</div>
+        </div></div>
+        <div class="sec" style="padding-top:12px"><div class="panel">
+          <p class="ch" style="font-size:18px">Orders</p><p class="p" style="margin:4px 0 6px">Total guests by event</p>
+          <div class="cols">${guests.map(([n,v],i)=>`<div class="${v<60?'lo':''}"><span style="color:#fff;font-variant-numeric:tabular-nums">${v}</span><i style="height:${v/146*120}px;animation-delay:${i*70}ms"></i><span>${n.split(' ')[0]}</span></div>`).join('')}</div>
+        </div></div>
+        <div class="sec" style="padding-top:20px"><button class="btn" data-go="myevent">Open “Exclusive Celestial Soirée”</button><button class="btn ghost" style="margin-top:10px" data-go="scan">Scan tickets at the door</button></div>
+      ` + footer();
+    },
+
+    myevent(){
+      const sales = [['Mon',39],['Tue',18],['Wed',70],['Thu',64],['Fri',92],['Sat',118],['Sun',44]];
+      const tiers = [['Early bird',146,0],['First release',24,82],['Second release',0,60]];
+      return header() + `
+        <div class="pad" style="padding-top:8px"><button class="ibtn" data-go="analytics" aria-label="Back to dashboard" style="margin-left:-10px">${I.back}</button></div>
+        <div class="pad" style="margin-bottom:22px">
+          <div style="display:flex;gap:8px;margin:6px 0 18px"><span class="tag">Party</span><span class="tag">NY</span><span class="tag">${I.star}9.8</span></div>
+          <h1 class="d2">Exclusive Celestial Soirée</h1>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><small>Total bookings</small><strong>170</strong><div class="delta">Tickets left: 142</div></div>
+          <div class="kpi"><small>Total profit</small><strong>$8.2K</strong><div class="delta">After fees</div></div>
+        </div>
+        <div class="sec" style="padding-top:20px"><div class="panel">
+          <p class="ch" style="font-size:18px;margin-bottom:6px">Releases</p>
+          ${tiers.map(([n,sold,left])=>`<div style="padding:14px 0;border-bottom:1px solid #2e2e33"><div style="display:flex;justify-content:space-between"><span>${n}</span><span class="p">${sold} sold · ${left} left</span></div><div class="prog"><i style="width:${sold/(sold+left||1)*100}%"></i></div></div>`).join('')}
+        </div></div>
+        <div class="sec" style="padding-top:12px"><div class="panel">
+          <p class="ch" style="font-size:18px">Sales dynamics</p><p class="p" style="margin:4px 0 6px">Total number of sales by day</p>
+          <div class="cols">${sales.map(([d,v],i)=>`<div class="${v<40?'lo':''}"><span style="color:#fff">${v}</span><i style="height:${v/118*120}px;animation-delay:${i*60}ms"></i><span>${d}</span></div>`).join('')}</div>
+        </div></div>
+        <div class="sec" style="padding-top:20px"><button class="btn" data-go="scan">Scan tickets at the door</button></div>
+      ` + footer();
+    },
+
+    scan(){
+      return header() + `
+        <div class="pad" style="padding-top:8px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px"><button class="ibtn" data-go="analytics" aria-label="Back to dashboard" style="margin-left:-10px">${I.back}</button><h1 class="d2">Scan QR</h1></div>
+        <div class="scan">
+          <img src="${im('street.jpg')}" alt="">
+          <div class="frame" aria-hidden="true"><b></b><b></b><b></b><b></b>${S.scanned?'':'<span class="line"></span>'}</div>
+          ${S.scanned?`<div class="ok" role="status"><div style="text-align:center"><div class="okmark">${I.check}</div><p class="d3">Ticket valid</p><p class="p16" style="margin-top:10px">Jonathan Williamson<br>1 × First release · Entry 1 of 1</p></div></div>`:''}
+        </div>
+        <div class="pad" style="margin-top:20px">
+          ${S.scanned?`<button class="btn" data-act="rescan">Scan next guest</button>`:`<button class="btn" data-act="scan">Scan QR code</button>`}
+          <div style="display:flex;justify-content:space-between;margin-top:20px" class="p"><span>Checked in tonight</span><span style="color:#fff;font-variant-numeric:tabular-nums">${S.scanned?129:128} / 170</span></div>
+          <div class="prog"><i style="width:${(S.scanned?129:128)/170*100}%"></i></div>
+        </div><div class="spacer"></div>`;
+    }
+  };
+
+  /* ================= desktop layouts (from the Figma "Desktop design" page) ================= */
+  const D = () => document.documentElement.classList.contains('desk');
+  const strip = (html) => { const h = header(); return html.indexOf(h) === 0 ? html.slice(h.length) : html; };
+  const dheader = () => `
+    <header class="dhdr"><div class="dwrap dhdr-in">
+      <button class="logo" data-go="${S.role==='owner'?'analytics':'home'}" aria-label="TikTaac home">${LOGO}<span>TIKTAAC</span></button>
+      <nav class="dnav">
+        ${S.role==='owner'
+          ? `<button data-go="analytics" class="${['analytics','myevent','scan'].includes(S.view)?'on':''}">Dashboard</button><button data-go="events">Events</button><button data-go="home">Blog</button>`
+          : `<button data-go="tickets" data-tab="tickets" class="${S.view==='tickets'?'on':''}">Account</button><button data-go="events" class="${['events','event','buy'].includes(S.view)?'on':''}">Events</button><button data-go="home">Blog</button>`}
+        <button class="pill ghost" data-go="events">${I.search}<span>Search</span></button>
+        <button class="pill" data-act="role" data-role="${S.role==='owner'?'guest':'owner'}">${S.role==='owner'?'Guest view':'For venues'}</button>
+      </nav>
+    </div></header>`;
+  const dfooter = () => `<footer class="dfoot"><div class="dwrap"><div class="dfoot-row"><span><b>Home</b><b>Events</b><b>About</b><b>Blog</b><b>Help</b></span><span><b>X</b><b>Instagram</b></span></div><div class="dfoot-row muted"><span>Privacy policy · © All Rights Reserved</span><span>2024</span></div></div></footer>`;
+  const dcard = (e) => `
+    <button class="dcard" data-go="event" data-ev="${e.id}">
+      <div class="ph"><img src="${im(e.img)}" alt=""></div>
+      <div class="dcard-body"><p class="ch" style="font-size:22px">${e.name}</p><p class="sub">${e.date}</p><p class="sub" style="margin-top:4px">${e.venue}</p></div>
+      <span class="btn" style="height:52px">From ${money(e.from)}</span>
+    </button>`;
+  const dash = (body) => `
+    <div class="dwrap dash">
+      <aside class="dside" aria-label="Dashboard sections">
+        ${[['analytics','Main page'],['myevent','My events'],['scan','Scan tickets'],['', 'My venue'],['', 'My calendar'],['', 'My staff'],['', 'Account settings']].map(([v,l])=>v?`<button data-go="${v}" class="${S.view===v?'on':''}">${l}</button>`:`<button disabled title="Not part of this demo">${l}</button>`).join('')}
+      </aside>
+      <main class="dmain">${body}</main>
+    </div>`;
+
+  const DV = {
+    home(){
+      return dheader() + `
+      <section class="dhero">
+        <div class="dhero-img"><img src="${im('crowd.jpg')}" alt="Crowd at a night club" style="filter:grayscale(1) contrast(1.05)"></div>
+        <div class="dwrap dhero-copy">
+          <h1 class="dd1">Discover<br>the Night</h1>
+          <div style="max-width:420px;margin-top:28px"><p class="p16" style="font-size:20px;line-height:1.5">Clubs, line-ups and ticket releases near you — pick one, pay from your phone, scan at the door</p><button class="btn" style="margin-top:36px;height:64px;font-size:18px" data-go="events">Browse tonight</button></div>
+        </div>
+      </section>
+      <section class="dwrap dfeat">
+        <div class="ph"><img src="${im('stage.jpg')}" alt=""></div>
+        <div><h2 class="dd2" style="text-transform:uppercase">The Last Party</h2><p class="p16" style="font-size:22px;letter-spacing:.12em;margin-top:22px">Sat / Dec 30 / 11:00 PM</p><button class="btn" style="margin-top:56px;max-width:385px;height:64px;font-size:18px" data-go="event" data-ev="lastparty">Buy tickets</button></div>
+      </section>
+      <section class="dwrap" style="padding-top:120px"><div class="drow-head"><h2 class="dd2">Upcoming events</h2><button class="pill ghost" data-go="events">All events ${I.arrow}</button></div>
+        <div class="dgrid4">${EVENTS.slice(1,5).map(dcard).join('')}</div></section>
+      <section class="dwrap dpartner">
+        <div class="ph"><img src="${im('confetti.jpg')}" alt=""></div>
+        <div><h2 class="dd2">Become a partner</h2><p class="p16" style="font-size:20px;line-height:1.5;margin:24px 0 40px;max-width:520px">We’re proud to work with a global network of promoters, venues and artists</p><button class="btn" style="max-width:360px;height:64px;font-size:18px" data-act="role" data-role="owner">Open the owner dashboard</button></div>
+      </section>` + dfooter();
+    },
+    events(){
+      const types = ['All','Party','Club night','Concert','Gala','Lounge'];
+      const q = S.q.trim().toLowerCase();
+      const list = EVENTS.filter(e => (S.filter==='All' || e.type===S.filter) && (!q || (e.name+e.venue).toLowerCase().includes(q)));
+      return dheader() + `
+      <section class="dwrap" style="padding-top:56px">
+        <h1 class="dd2" style="font-size:72px">Events</h1>
+        <div class="dfilters"><label class="search" style="margin:0;flex:0 1 420px">${I.search}<input id="q" type="search" placeholder="Search events or venues" value="${S.q.replace(/"/g,'&quot;')}" aria-label="Search events or venues"></label>
+          <div class="chips" style="padding:0" role="group" aria-label="Filter by type">${types.map(t=>`<button class="chip ${S.filter===t?'on':''}" data-filter="${t}" aria-pressed="${S.filter===t}">${t}</button>`).join('')}</div></div>
+        ${list.length ? `<div class="dgrid3">${list.map(dcard).join('')}</div>` : `<div class="panel" style="margin-top:24px;text-align:center;padding:48px"><p class="ch">No events match</p><p class="p" style="margin-top:8px">Try another type or clear the search.</p><button class="btn ghost" style="margin:20px auto 0;max-width:260px;height:48px" data-filter="All" data-clear="1">Show all events</button></div>`}
+      </section>` + dfooter();
+    },
+    event(){
+      const e = EVENTS.find(x=>x.id===S.ev) || EVENTS[0];
+      const tier = TIERS.find(t=>t.id===S.tier);
+      return dheader() + `
+      <section class="devent">
+        <div class="devent-img"><img src="${im(e.img)}" alt="${e.name}"><button class="back" style="top:24px" data-go="events" aria-label="Back to events">${I.back}</button></div>
+        <div class="devent-body">
+          <div style="display:flex;gap:12px;margin-bottom:24px"><span class="tag" style="height:35px;font-size:18px">${e.type}</span><span class="tag" style="height:35px;font-size:18px">${I.star}${e.rating}</span></div>
+          <h1 class="dd2" style="font-size:64px">${e.name}</h1>
+          <p class="p16" style="font-size:20px;letter-spacing:.06em;margin-top:28px">${e.date}<br>${e.venue}</p>
+          <div class="drel">
+            <div role="radiogroup" aria-label="Ticket release" style="flex:1">
+            ${TIERS.map(t=>`<button class="tier ${S.tier===t.id?'on':''} ${t.left?'':'sold'}" role="radio" aria-checked="${S.tier===t.id}" ${t.left?`data-tier="${t.id}"`:'aria-disabled="true"'}><span style="display:flex;gap:14px;align-items:center"><span class="radio"></span><span><span class="ch" style="font-size:18px;display:block">${t.name}</span><span class="p" style="display:block;margin-top:4px">${t.note}</span></span></span><span class="d3" style="font-size:20px">${money(t.price)}</span></button>`).join('')}
+            </div>
+            <div class="counter"><span class="count" id="cd" style="font-size:22px">02:35:47</span><span class="p16">Release ends in</span></div>
+          </div>
+          <button class="btn" style="margin-top:28px;height:64px;font-size:18px" data-go="buy" data-step="1">Buy tickets · ${money(tier.price)}</button>
+          <h2 class="ch" style="font-size:32px;font-weight:700;margin-top:72px">About</h2><p class="p16" style="font-size:18px;line-height:1.5;margin-top:18px;color:#BBBBBB">Elegant evening: elevate your style and plunge into the atmosphere of exclusivity. Star music: performances by talented artists and DJs for an unforgettable night under the stars.</p>
+          <h2 class="ch" style="font-size:32px;font-weight:700;margin-top:64px">Lineup</h2>
+          <div style="display:flex;gap:20px;align-items:center;margin-top:20px">${['djgirl','turntable','neonblue'].map(n=>`<div class="ph" style="width:110px;height:110px;border-radius:14px;overflow:hidden;flex:none"><img src="${im(n+'.jpg')}" alt=""></div>`).join('')}</div>
+          <p class="p16" style="font-size:22px;color:#fff;margin-top:18px">Martin Garrix, Calvin Harris, The Chainsmokers</p>
+          <h2 class="ch" style="font-size:32px;font-weight:700;margin-top:64px">When else</h2>
+          ${['Sat / Dec 25 / 9:00 pm','Sun / Dec 26 / 9:00 pm'].map(d=>`<div class="dwhen"><div><p class="ch">${e.name}</p><p class="sub">${d} · ${e.venue}</p></div><button class="pill ghost" data-go="buy" data-step="1">Buy tickets</button></div>`).join('')}
+        </div>
+      </section>` + dfooter();
+    },
+    buy(){ return dheader() + `<div class="dcol" style="padding-top:40px">${strip(V.buy())}</div>` + dfooter(); },
+    tickets(){ return dheader() + `<div class="dcol" style="padding-top:40px">${strip(V.tickets()).replace(footer(),'')}</div>` + dfooter(); },
+    analytics(){
+      const rev = [['Neon Glow Party',2.8],['Midnight Masquerade Ball',2.6],['VIP Lounge Experience',2.5],['Disco Fever Night',1.4],['Tropical Summer Splash',1.1]];
+      const guests = [['Neon Glow Party',94],['Disco Fever Night',72],['Midnight Masquerade Ball',122],['VIP Lounge Experience',28],['Tropical Summer Splash',146]];
+      return dheader() + dash(`
+        <div class="drow-head" style="margin-bottom:32px"><h1 class="dd2" style="font-size:44px">This week at a glance</h1><span class="chip on" style="display:inline-flex;align-items:center">Dec 15–21</span></div>
+        <div class="dkpis">
+          <div class="kpi light"><small>Total revenue per week</small><strong>$12.4K</strong><div class="delta">+18% vs previous week</div></div>
+          <div class="kpi"><small>Total guests per week</small><strong>1422</strong></div>
+          <div class="kpi"><small>Events per week</small><strong>12</strong></div>
+        </div>
+        <div class="dpanels">
+          <div class="panel"><p class="ch" style="font-size:20px">Revenue</p><p class="p" style="margin:4px 0 22px">Total income by event</p>
+            <div class="bars">${rev.map(([n,v],i)=>`<div class="bar"><span>${n}</span><span>$${v}K</span><div class="track"><div class="fill" style="width:${v/2.8*100}%;animation-delay:${i*70}ms"></div></div></div>`).join('')}</div></div>
+          <div class="panel"><p class="ch" style="font-size:20px">Orders</p><p class="p" style="margin:4px 0 6px">Total guests by event</p>
+            <div class="cols" style="height:230px">${guests.map(([n,v],i)=>`<div class="${v<60?'lo':''}"><span style="color:#fff">${v}</span><i style="height:${v/146*170}px;animation-delay:${i*70}ms"></i><span>${n.split(' ')[0]}</span></div>`).join('')}</div></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:24px"><button class="btn" style="max-width:360px" data-go="myevent">Open “Exclusive Celestial Soirée”</button><button class="btn ghost" style="max-width:300px" data-go="scan">Scan tickets at the door</button></div>`) + dfooter();
+    },
+    myevent(){
+      const sales = [['Monday',39],['Tuesday',18],['Wednesday',70],['Thursday',64],['Friday',92],['Saturday',118],['Sunday',44]];
+      const tiers = [['Early bird',146,0],['First release',24,82],['Second release',0,60]];
+      return dheader() + dash(`
+        <div style="display:flex;gap:8px;margin-bottom:16px"><span class="tag">Party</span><span class="tag">NY</span><span class="tag">${I.star}9.8</span></div>
+        <h1 class="dd2" style="font-size:44px;margin-bottom:32px">Exclusive Celestial Soirée</h1>
+        <div class="dkpis">
+          <div class="kpi light"><small>Total bookings</small><strong>170</strong><div class="delta">Tickets left: 142</div></div>
+          <div class="kpi"><small>Total profit</small><strong>$8.2K</strong><div class="delta">After fees</div></div>
+          <div class="kpi"><small>Checked in tonight</small><strong>128</strong><div class="delta">of 170 guests</div></div>
+        </div>
+        <div class="dpanels">
+          <div class="panel"><p class="ch" style="font-size:20px;margin-bottom:6px">Releases</p>${tiers.map(([n,sold,left])=>`<div style="padding:16px 0;border-bottom:1px solid #2e2e33"><div style="display:flex;justify-content:space-between"><span>${n}</span><span class="p">${sold} sold · ${left} left</span></div><div class="prog"><i style="width:${sold/(sold+left||1)*100}%"></i></div></div>`).join('')}</div>
+          <div class="panel"><p class="ch" style="font-size:20px">Sales dynamics</p><p class="p" style="margin:4px 0 6px">Total number of sales by day</p>
+            <div class="cols" style="height:230px">${sales.map(([d,v],i)=>`<div class="${v<40?'lo':''}"><span style="color:#fff">${v}</span><i style="height:${v/118*170}px;animation-delay:${i*60}ms"></i><span>${d.slice(0,3)}</span></div>`).join('')}</div></div>
+        </div>
+        <button class="btn" style="max-width:300px;margin-top:24px" data-go="scan">Scan tickets at the door</button>`) + dfooter();
+    },
+    scan(){ return dheader() + dash(`<div style="max-width:560px">${strip(V.scan())}</div>`) + dfooter(); }
+  };
+
+  function menuView(){
+    const guest = [['home','Home'],['events','Events'],['tickets','My tickets'],['wallet','Wallet']];
+    const owner = [['analytics','Sales analysis'],['myevent','My events'],['scan','Scan tickets']];
+    return `<div class="menu" role="dialog" aria-modal="true" aria-label="Menu">
+      <div style="display:flex;justify-content:space-between;align-items:center;height:72px"><span class="logo">${LOGO}<span>TIKTAAC</span></span><button class="ibtn" data-act="menu" aria-label="Close menu">${I.close}</button></div>
+      <div class="role" style="display:flex;gap:8px" role="group" aria-label="Switch side"><button class="chipbtn ${S.role==='guest'?'on':''}" data-act="role" data-role="guest">Guest</button><button class="chipbtn ${S.role==='owner'?'on':''}" data-act="role" data-role="owner">Venue owner</button></div>
+      <p class="grp">${S.role==='owner'?'For venue owners':'For guests'}</p>
+      <nav>${(S.role==='owner'?owner:guest).map(([v,l])=>`<button data-go="${v==='wallet'?'tickets':v}" ${v==='wallet'?'data-tab="wallet"':v==='tickets'?'data-tab="tickets"':''}>${l}<span style="color:var(--muted)">${I.arrow}</span></button>`).join('')}</nav>
+      <div style="margin-top:auto" class="p">Prototype built from the TikTaac Figma file · 2024</div>
+    </div>`;
+  }
+
+  function render(resetScroll){
+    const keepQ = document.activeElement && document.activeElement.id === 'q';
+    const body = (D() && DV[S.view]) ? DV[S.view]() : V[S.view]();
+    scroller.innerHTML = `<div class="view">${body}</div>` + (S.menu ? menuView() : '') + (S.toast ? `<div class="toast" role="status">${I.check}${S.toast}</div>` : '');
+    if (resetScroll) scroller.scrollTop = 0;
+    document.querySelectorAll('.aside [data-role]').forEach(b => b.classList.toggle('on', b.dataset.role === S.role));
+    const f1 = document.getElementById('f1');
+    if (f1) f1.addEventListener('submit', (e) => { e.preventDefault(); S.step = 2; render(true); });
+    const q = document.getElementById('q');
+    if (q) { q.addEventListener('input', () => { S.q = q.value; const pos = q.selectionStart; render(false); const n = document.getElementById('q'); n.focus(); n.setSelectionRange(pos, pos); }); if (keepQ) q.focus(); }
+  }
+
+  let toastT;
+  function toast(msg){ S.toast = msg; render(false); clearTimeout(toastT); toastT = setTimeout(() => { S.toast = ''; render(false); }, 1800); }
+
+  document.addEventListener('click', (ev) => {
+    const el = ev.target.closest('button,[data-go]'); if (!el) return;
+    const d = el.dataset;
+    if (d.act === 'menu') { S.menu = !S.menu; render(false); return; }
+    if (d.role) { S.role = d.role; S.menu = false; go(d.role === 'owner' ? 'analytics' : 'home'); return; }
+    if (d.act === 'pay') { S.tickets.unshift({ ev:S.ev, tier:S.tier, qty:S.qty, code:'TK-24-' + (1000 + Math.floor(Math.random()*8999)) }); S.step = 3; render(true); return; }
+    if (d.act === 'scan') { S.scanned = true; render(false); return; }
+    if (d.act === 'rescan') { S.scanned = false; render(false); return; }
+    if (d.tier) { S.tier = d.tier; render(false); return; }
+    if (d.qty) { S.qty = Math.max(1, Math.min(6, S.qty + (+d.qty))); render(false); return; }
+    if (d.pay) { S.pay = d.pay; render(false); return; }
+    if (d.top) { S.balance += +d.top; toast('Balance topped up by $' + d.top); return; }
+    if (d.filter) { S.filter = d.filter; if (d.clear) S.q = ''; render(false); return; }
+    if (d.go) { const extra = {}; if (d.ev) extra.ev = d.ev; if (d.step) extra.step = +d.step; if (d.tab) extra.tab = d.tab; if (d.go === 'event' && d.ev) { extra.tier = 'first'; extra.qty = 1; } if (d.go === 'scan') extra.scanned = false; go(d.go, extra); return; }
+    if (d.step) { S.step = +d.step; render(true); return; }
+    if (d.tab) { S.tab = d.tab; render(false); return; }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && S.menu) { S.menu = false; render(false); } });
+
+  // live countdown on the event page
+  let left = 2*3600 + 35*60 + 47;
+  setInterval(() => { left = left > 0 ? left - 1 : 0; const el = document.getElementById('cd'); if (el) { const h = String(Math.floor(left/3600)).padStart(2,'0'), m = String(Math.floor(left%3600/60)).padStart(2,'0'), x = String(left%60).padStart(2,'0'); el.textContent = h+':'+m+':'+x; } }, 1000);
+
+  render(true);
+})();
+</script>
+</body>
+</html>

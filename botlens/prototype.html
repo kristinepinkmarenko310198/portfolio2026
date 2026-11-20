@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Botlens prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F2F3;--card:#fff;--ink:#1E1E22;--ink2:#55575E;--ink3:#8A8C93;--line:#E6E6E9;--y:#FFC21A;--ySoft:#FFF4D2;--g:#38C18C;--gSoft:#E3F6EE;--r:#EE4646;--rSoft:#FDE6E6;--b:#3F55F2}
+*{box-sizing:border-box;font-style:normal!important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:400 13px/1.5 Poppins,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+img{display:block}
+.top{height:56px;background:#fff;display:flex;align-items:center;gap:6px;padding:0 20px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.top .logo{width:34px;height:22px;border-radius:6px;object-fit:cover;margin-right:14px}
+.nav{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:6px;font-weight:500;color:var(--ink)}
+.nav i{width:12px;height:10px;border-radius:2px;background:var(--y);display:inline-block}
+.nav.on{background:var(--ySoft)}
+.nav:hover{background:#F6F6F7}.nav.on:hover{background:var(--ySoft)}
+.me{margin-left:auto;display:flex;align-items:center;gap:6px;font-weight:500}
+.me i{width:10px;height:10px;border-radius:50%;background:var(--y);display:inline-block}
+main{padding:20px 20px 40px;max-width:1360px;margin:0 auto}
+h1{font-size:22px;font-weight:600;margin:0}
+.card{background:var(--card);border-radius:4px}
+.muted{color:var(--ink3)}
+.chips{display:flex;gap:6px}
+.chip{height:32px;padding:0 14px;border-radius:6px;background:#fff;border:1px solid var(--line);font-weight:500;display:flex;align-items:center;gap:8px}
+.chip b{font-weight:600;background:#F1F1F3;border-radius:10px;padding:0 7px;font-size:11px}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}.chip.on b{background:#3A3A40;color:#fff}
+.search{height:32px;border:1px solid var(--line);border-radius:6px;padding:0 12px;width:260px;font:inherit;background:#fff;outline:none}
+.search:focus{border-color:var(--ink3)}
+table{width:100%;border-collapse:collapse}
+th{font-weight:500;color:var(--ink3);text-align:left;font-size:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer;transition:background .15s}
+tbody tr:hover{background:#FAFAFB}
+.mono{font-variant-numeric:tabular-nums;color:var(--ink2)}
+.pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:4px;font-weight:500;font-size:12px}
+.pill.review{background:var(--ySoft);color:#8A6200}.pill.ok{background:var(--gSoft);color:#1C7F57}.pill.no{background:var(--rSoft);color:#B42727}
+.mini{display:flex;align-items:center;gap:8px}
+.mini .bar{width:90px;height:5px;border-radius:3px;background:#EEE;position:relative;overflow:hidden}
+.mini .bar span{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
+.head{display:flex;align-items:center;gap:28px;padding:14px 0 18px}
+.back{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:18px}
+.back:hover{background:#E8E8EA}
+.meta small{display:block;color:var(--ink3);font-size:11px}
+.meta div{font-size:12px;color:var(--ink2)}
+.status{position:relative}
+.sbtn{height:36px;padding:0 16px;border-radius:3px;font-weight:600;display:flex;align-items:center;gap:10px;min-width:160px}
+.sbtn.review{background:var(--y)}.sbtn.ok{background:var(--g);color:#fff}.sbtn.no{background:var(--r);color:#fff}
+.sbtn .dot{width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;font-size:10px;display:grid;place-items:center}
+.sbtn.ok .dot,.sbtn.no .dot{background:#fff;color:var(--ink)}
+.sbtn .car{margin-left:auto;font-size:9px}
+.menu{position:absolute;top:40px;left:0;background:#fff;border-radius:6px;box-shadow:0 10px 30px rgba(20,20,30,.16);padding:6px;min-width:200px;z-index:30;display:none}
+.menu.open{display:block;animation:pop .14s ease}
+@keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.menu button{display:flex;width:100%;gap:10px;align-items:center;padding:8px 10px;border-radius:4px;text-align:left}
+.menu button:hover{background:#F5F5F7}
+.menu i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.icons{margin-left:auto;display:flex;gap:8px}
+.ib{width:34px;height:34px;border-radius:4px;background:#fff;display:grid;place-items:center;font-weight:700;font-size:11px}
+.ib:hover{background:#EBEBED}
+.tabs{display:flex;gap:4px;background:#E8E8EA;padding:4px;border-radius:4px;margin-bottom:18px}
+.tab{height:32px;padding:0 18px;border-radius:3px;font-weight:500;color:var(--ink2)}
+.tab.on{background:#fff;color:var(--ink);font-weight:600}
+.grid{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px;align-items:start}
+.lc{padding:16px 16px 18px;margin-bottom:16px}
+.lc h3{font-size:13px;font-weight:600;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center}
+.lc h3 span{width:22px;height:22px;border-radius:3px;background:#F0F0F2;display:grid;place-items:center;font-size:11px}
+.stage{border:1px solid var(--line);border-radius:2px;height:184px;display:grid;place-items:center;overflow:hidden;background:#fff;position:relative}
+.stage img{width:88%;height:88%;object-fit:contain}
+.stage.photo{border:0;height:184px}
+.stage.photo img{width:100%;height:100%;object-fit:cover;max-width:none;max-height:none}
+.play{position:absolute;width:38px;height:38px;border-radius:50%;background:rgba(255,194,26,.85);display:grid;place-items:center;color:#fff;font-size:13px}
+.thumbs{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.th{width:60px;font-size:11px;color:var(--ink2);text-align:left;line-height:1.3}
+.th img,.th .ph{width:58px;height:38px;object-fit:cover;border:2px solid transparent;border-radius:1px;margin-bottom:4px}
+.th.on img{border-color:var(--y)}
+.th:hover img{border-color:#FFE08A}
+.ph{background:repeating-linear-gradient(45deg,#EEE 0 6px,#F6F6F6 6px 12px)}
+.redact{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(135deg,#E9ECEF,#F6F7F8);color:var(--ink3);font-size:12px;text-align:center;padding:20px}
+.ctabs{display:flex;gap:2px;background:#E8E8EA;padding:4px 4px 0;border-radius:4px 4px 0 0}
+.ct{height:30px;padding:0 10px;border-radius:3px 3px 0 0;font-size:11px;font-weight:500;color:var(--ink2);display:flex;gap:5px;align-items:center}
+.ct.on{background:#fff;color:var(--ink)}
+.ck{width:12px;height:12px;border-radius:50%;background:var(--g);color:#fff;font-size:8px;display:grid;place-items:center;flex:none}
+.ck.x{background:var(--r)}.ck.w{background:var(--y);color:#000}
+.sec{padding:20px 16px 22px;border-top:8px solid var(--bg)}
+.sec:first-child{border-top:0}
+.sec h2{font-size:14px;font-weight:600;margin:0 0 6px}
+.sec h2 span{font-weight:400;color:var(--ink3)}
+.sec p{color:var(--ink2);margin:0 0 16px;max-width:680px;font-size:12px}
+.sec h4{font-size:12px;font-weight:600;margin:20px 0 8px}
+.li{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-size:12px;color:var(--ink)}
+.li .ck{margin-top:3px}
+.li.click{cursor:pointer;border-radius:4px;margin:0 -8px;padding:5px 8px}
+.li.click:hover{background:#FAFAFB}
+.li .more{margin-left:auto;color:var(--b);font-size:11px;font-weight:500;white-space:nowrap}
+.tick{color:var(--ink);font-size:12px;margin-top:1px}
+.detail{margin:4px 0 8px 22px;padding:14px;border-radius:4px;background:#F8F8F9;display:none;gap:14px;align-items:center}
+.detail.open{display:flex;animation:pop .18s ease}
+.detail figure{margin:0;text-align:center;font-size:11px;color:var(--ink3)}
+.detail figure img{width:150px;height:70px;object-fit:contain;background:#fff;border:1px solid var(--line);margin-bottom:4px}
+.sim{font-size:28px;font-weight:600;color:var(--r)}
+.sig-lines{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--ink2)}
+.meter{position:relative;margin:56px 0 10px;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 24px}
+.meter .track{height:4px;border-radius:2px}
+.meter .lab{display:grid;grid-template-columns:1fr 1fr;text-align:center;font-size:11px;color:var(--ink2);padding:0 24px}
+.tip{position:absolute;top:-40px;transform:translateX(-50%);background:#111;color:#fff;font-size:11px;font-weight:500;padding:5px 12px;border-radius:5px;white-space:nowrap;transition:left .6s cubic-bezier(.3,.8,.3,1)}
+.tip::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#111}
+.needle{position:absolute;top:-6px;width:2px;height:16px;background:#111;border-radius:1px;transition:left .6s cubic-bezier(.3,.8,.3,1)}
+.log{display:grid;grid-template-columns:150px 22px 1fr 120px;gap:10px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);font-size:12px}
+.log .dt{color:var(--ink3);font-variant-numeric:tabular-nums}
+.log .ms{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink2)}
+.log .ms.hot{color:var(--r);font-weight:600}
+pre{margin:0;padding:18px;font:12px/1.6 ui-monospace,Menlo,monospace;color:#2A2C33;white-space:pre-wrap}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#1E1E22;color:#fff;padding:10px 16px;border-radius:6px;font-weight:500;opacity:0;transition:.25s;pointer-events:none;z-index:50;display:flex;gap:14px;align-items:center}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{color:var(--y);font-weight:600}
+.empty{padding:40px;text-align:center;color:var(--ink3)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+.kpi{padding:14px 16px}
+.kpi small{color:var(--ink3);font-size:11px;display:block}
+.kpi b{font-size:22px;font-weight:600}
+.flowstep{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 6px}
+.fs{font-size:11px;padding:3px 8px;border-radius:3px;background:#F2F2F4;color:var(--ink2)}
+.fs.bad{background:var(--rSoft);color:#B42727}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const APPS=[
+ {id:"5fdb4f6fd51b58e1fab97ce4a5249",name:"Mary Smith",flow:"Onboarding EE",country:"Estonia",date:"17-12-2020",t1:"14:30",t2:"14:31",status:"review",bot:.82,demo:true,
+  inter:{n:2,items:[["ok","Flow sequencing","checks logic and correct sequence of the flow"],["x","Human behaviour analysis","determines bot-like interaction based on the behavioural patterns"],["ok","Device-based analysis","controls user's location and device throughout the session"],["x","Source monitoring","checks trusted source initiating the session"]]},
+  sig:{n:1,sim:20}},
+ {id:"5fdb4e21aa9c03d1e7b4c0f2e18",name:"Jonas Berg",flow:"Onboarding SE",country:"Sweden",date:"17-12-2020",t1:"13:58",t2:"13:59",status:"ok",bot:.12,sig:{n:0,sim:94},inter:{n:0}},
+ {id:"5fdb4d90c1f2b77ae09d3a6c4b7",name:"Lea Novak",flow:"Age check UK",country:"United Kingdom",date:"17-12-2020",t1:"13:41",t2:"13:41",status:"review",bot:.58,sig:{n:0,sim:88},inter:{n:1}},
+ {id:"5fdb4c3e7b8a1f0c2d5e9a3b6c1",name:"Ahmed Karim",flow:"Wallet top-up QA",country:"Qatar",date:"17-12-2020",t1:"12:20",t2:"12:22",status:"ok",bot:.08,sig:{n:0,sim:97},inter:{n:0}},
+ {id:"5fdb4b11f9e2c84a6b0d7e5f3a2",name:"Unknown applicant",flow:"Onboarding EE",country:"Estonia",date:"17-12-2020",t1:"11:07",t2:"11:07",status:"no",bot:.95,sig:{n:1,sim:9},inter:{n:3}},
+ {id:"5fdb4a07d3c5e19b8f2a4c6e0d9",name:"Sofia Rossi",flow:"Betting IT",country:"Italy",date:"16-12-2020",t1:"22:14",t2:"22:16",status:"ok",bot:.21,sig:{n:0,sim:91},inter:{n:0}},
+ {id:"5fdb49f2b6a8d03c7e1f5b9a2c4",name:"Peter Kask",flow:"Onboarding EE",country:"Estonia",date:"16-12-2020",t1:"19:48",t2:"19:49",status:"review",bot:.66,sig:{n:1,sim:41},inter:{n:2}},
+ {id:"5fdb48e1c0d7f2a5b9e3c6d8a1f",name:"Emma Laine",flow:"Onboarding FI",country:"Finland",date:"16-12-2020",t1:"17:02",t2:"17:03",status:"ok",bot:.05,sig:{n:0,sim:96},inter:{n:0}},
+];
+const ST={review:["Need review","!"],ok:["Approved","✓"],no:["Rejected","✕"]};
+const S={view:"list",filter:"all",q:"",sel:null,tab:"Main",check:"BotLens",sigI:0,faceI:1,idI:0,open:{},menu:false};
+let tT;
+function toast(msg,undo){const t=$("#toast");t.innerHTML=msg+(undo?' <button id="undo">Undo</button>':'');t.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("show"),3600);if(undo)$("#undo").onclick=()=>{undo();t.classList.remove("show")}}
+const riskCol=v=>v>.7?"var(--r)":v>.45?"var(--y)":"var(--g)";
+const riskLab=v=>v>.7?"Automation":v>.45?"Suspicious":"Human like";
+function topbar(){return `<div class="top"><img class="logo" src="logo.jpg" alt="Checkin.com"><button class="nav on" data-go="list"><i></i>Applications</button><button class="nav" data-soon="Flows"><i style="background:#FFD866"></i>Flows</button><button class="nav" data-soon="Setup"><i style="background:#FFE6A0"></i>Setup ▾</button><button class="nav" data-go="stats"><i style="background:#FFB000;height:6px"></i>Statistics</button><div class="me"><i></i>Mary ▾</div></div>`}
+function list(){
+ const cnt=k=>APPS.filter(a=>k=="all"||a.status==k).length;
+ const rows=APPS.filter(a=>(S.filter=="all"||a.status==S.filter)&&(a.name+a.id+a.flow).toLowerCase().includes(S.q.toLowerCase()));
+ return `<main><div style="display:flex;align-items:center;gap:16px;margin-bottom:16px"><h1>Applications</h1><span class="muted">Botlens flags sessions that look automated. Open one to see why.</span></div>
+ <div style="display:flex;justify-content:space-between;margin-bottom:14px"><div class="chips">${[["all","All"],["review","Need review"],["ok","Approved"],["no","Rejected"]].map(([k,l])=>`<button class="chip ${S.filter==k?"on":""}" data-filter="${k}">${l}<b>${cnt(k)}</b></button>`).join("")}</div>
+ <input class="search" id="q" placeholder="Search name, ID or flow" value="${S.q}"></div>
+ <div class="card"><table><thead><tr><th>Applicant</th><th>Application ID</th><th>Flow</th><th>Botlens</th><th>Status</th><th>Verified</th></tr></thead><tbody>
+ ${rows.map(a=>`<tr data-open="${a.id}"><td style="font-weight:500">${a.name}</td><td class="mono">${a.id.slice(0,16)}…</td><td>${a.flow}</td><td><div class="mini"><div class="bar"><span style="width:${a.bot*100}%;background:${riskCol(a.bot)}"></span></div><span style="font-size:12px">${riskLab(a.bot)}</span></div></td><td><span class="pill ${a.status}">${ST[a.status][0]}</span></td><td class="mono">${a.date} ${a.t2}</td></tr>`).join("")}
+ </tbody></table>${rows.length?"":`<div class="empty">No applications match “${S.q}”. Clear the search or pick another filter.</div>`}</div></main>`}
+function stats(){const n=APPS.length,b=APPS.filter(a=>a.bot>.7).length;
+ return `<main><h1>Statistics</h1><div class="kpis">${[["Sessions today",n],["Flagged as automation",b],["Waiting for review",APPS.filter(a=>a.status=="review").length],["Approved",APPS.filter(a=>a.status=="ok").length]].map(([l,v])=>`<div class="card kpi"><small>${l}</small><b>${v}</b></div>`).join("")}</div>
+ <div class="card" style="padding:20px"><h2 style="font-size:14px;margin:0 0 16px">Botlens score per session</h2>${APPS.map(a=>`<div style="display:grid;grid-template-columns:160px 1fr 90px;gap:12px;align-items:center;margin:8px 0"><span>${a.name}</span><div style="height:8px;background:#F0F0F2;border-radius:4px"><div style="height:8px;border-radius:4px;width:${a.bot*100}%;background:${riskCol(a.bot)}"></div></div><span class="muted">${riskLab(a.bot)}</span></div>`).join("")}</div></main>`}
+function vis(a,kind){
+ if(!a.demo) return `<div class="redact">Visuals are hidden in this demo for privacy. Open Mary Smith to see a full case.</div>`;
+ if(kind=="sig") return `<img src="${["docsig.jpg","sig.jpg","motion.jpg"][S.sigI]}" alt="">`;
+ if(kind=="face") return `<img src="face.jpg" alt="">${S.faceI==1?'<button class="play" data-play>▶</button>':''}`;
+ return `<img src="id.jpg" alt="">`}
+function left(a){
+ const th=(arr,key)=>arr.map(([src,l],i)=>`<button class="th ${S[key]==i?"on":""}" data-th="${key}:${i}">${a.demo?`<img src="${src}" alt="">`:'<div class="ph"></div>'}${l}</button>`).join("");
+ return `<div><div class="card lc"><h3>Signatures<span>⤓</span></h3><div class="stage">${vis(a,"sig")}</div><div class="thumbs">${th([["docsig.jpg","Document signature"],["sig.jpg","Collected signature"],["motion.jpg","Motion pattern"]],"sigI")}</div></div>
+ <div class="card lc"><h3>Face photos and videos<span>⤓</span></h3><div class="stage photo">${vis(a,"face")}</div><div class="thumbs">${th([["selfie.jpg","Selfie"],["live.jpg","Liveness"]],"faceI")}</div></div>
+ <div class="card lc"><h3>ID Document visuals<span>⤓</span></h3><div class="stage photo" style="height:156px">${vis(a,"id")}</div><div class="thumbs">${th([["id.jpg","Front Original"],["idback.jpg","Back Original"],["idfp.jpg","Front Processed"],["idbp.jpg","Back Processed"]],"idI")}</div></div></div>`}
+function botlens(a){
+ const bot=a.bot>.7,sus=a.bot>.45;
+ const items=a.inter.items||[["ok","Flow sequencing","checks logic and correct sequence of the flow"],[a.inter.n?"x":"ok","Human behaviour analysis","determines bot-like interaction based on the behavioural patterns"],["ok","Device-based analysis","controls user's location and device throughout the session"],[a.inter.n>1?"x":"ok","Source monitoring","checks trusted source initiating the session"]];
+ const ev={"Human behaviour analysis":`<div class="sig-lines"><b style="color:var(--ink)">Typing and pointer rhythm</b><span>Form fields filled in 0.4 s each with identical intervals. People usually take 2–6 s and vary.</span><div class="flowstep"><span class="fs">Name 0.41 s</span><span class="fs">Address 0.40 s</span><span class="fs bad">Document 0.40 s</span><span class="fs bad">Signature 0.39 s</span></div></div>`,
+ "Source monitoring":`<div class="sig-lines"><b style="color:var(--ink)">Session origin</b><span>Started from a headless browser on a data-centre IP, not from the client's website or app.</span></div>`};
+ return `<div class="sec"><h2>Interaction check ${a.inter.n?`<span>found ${a.inter.n} issue${a.inter.n>1?"s":""}</span>`:'<span>no issues</span>'}</h2><p>An AI-driven set of tools used to identify automated sessions. The system analyses and verifies users behaviours in combination with device based monitoring.</p>
+ ${items.map(([s,t,d])=>{const has=s=="x"&&ev[t];return `<div class="li ${has?"click":""}" ${has?`data-ev="${t}"`:""}>${s=="x"?'<span class="ck x">!</span>':'<span class="tick">✓</span>'}<span><b>${t}:</b> ${d}</span>${has?`<span class="more">${S.open[t]?"Hide":"Why?"}</span>`:""}</div>${has?`<div class="detail ${S.open[t]?"open":""}">${ev[t]}</div>`:""}`}).join("")}</div>
+ <div class="sec"><h2>Signature ${a.sig.n?`<span>found ${a.sig.n} issue</span>`:'<span>no issues</span>'}</h2><p>Signature pattern recognition allows for automated analysis via machine learning and statistical analysis. Real-time tracking of movement, acceleration, time, size, position, shape, and other parameters detects simulated activity</p>
+ <h4>Signature comparison and pattern</h4>
+ <div class="li"><span class="ck">✓</span>Signature is located on the document</div>
+ <div class="li ${a.sig.n?"click":""}" ${a.sig.n?'data-ev="sig"':""}><span class="ck ${a.sig.n?"x":""}">${a.sig.n?"!":"✓"}</span>Collected and extracted signature are ${a.sig.sim}% similar${a.sig.n?`<span class="more">${S.open.sig?"Hide":"Compare"}</span>`:""}</div>
+ ${a.sig.n?`<div class="detail ${S.open.sig?"open":""}">${a.demo?`<figure><img src="docsig.jpg" alt="">On the document</figure><figure><img src="sig.jpg" alt="">Collected</figure>`:""}<div><div class="sim">${a.sig.sim}%</div><div class="muted" style="font-size:11px">similar. Stroke speed is constant, which hand-drawn lines rarely are.</div></div></div>`:""}
+ <div class="li"><span class="ck">✓</span>No duplicates found</div>
+ <div class="li"><span class="ck">✓</span>Motion pattern identified as normal</div></div>
+ <div class="sec"><h2>Liveness check <span>no issues</span></h2><p>Liveness check ensures that the biometric data being presented is from a live, present individual and not a static or replicated source</p>
+ <h4>Liveness check passed successfully</h4><div class="li"><span class="ck">✓</span>One face during session</div><div class="li"><span class="ck">✓</span>Faces are 95% similar with the document</div><div class="li"><span class="ck">✓</span>Live mode process identified as normal</div></div>
+ <div class="sec"><h2>Output: ${bot?"Automated session":sus?"Suspicious session":"Human session"}</h2><p>${bot?"It appears that a potential automated session has been detected. This could potentially mean the presence of a bot, script, or other automated tool that is interacting with the system in a manner that could be deemed as automated or non-human.":sus?"Some signals look automated, others look human. Review the evidence above before deciding.":"Interaction, signature and liveness signals match a real person completing the flow."}</p>
+ <div class="meter" id="meter"><div class="track" style="background:var(--g)"></div><div class="track" style="background:var(--r)"></div><div class="needle" style="left:calc(24px + ${a.bot} * (100% - 48px))"></div><div class="tip" style="left:calc(24px + ${a.bot} * (100% - 48px))">⚠ ${riskLab(a.bot)} · ${Math.round(a.bot*100)}</div></div>
+ <div class="meter lab" style="margin:0"><span>Human like</span><span>High risk of bot activity</span></div></div>`}
+function simple(title,rows){return `<div class="sec"><h2>${title}</h2><p>Checked automatically against the document and the session.</p>${rows.map(r=>`<div class="li"><span class="ck">✓</span>${r}</div>`).join("")}</div>`}
+function detail(){
+ const a=APPS.find(x=>x.id==S.sel);
+ const checks=["Document check","BotLens","Manipulation","AML Watchlists","Metadata"];
+ let body="";
+ if(S.tab=="Main"){
+  const c=S.check=="BotLens"?botlens(a):S.check=="Document check"?simple("Document check <span>no issues</span>",["Document type recognised: ID card","MRZ and visual zone match","Document is not expired"]):S.check=="Manipulation"?simple("Manipulation <span>no issues</span>",["No digital edits found","Photo is not replaced","Fonts are consistent"]):S.check=="AML Watchlists"?simple("AML Watchlists <span>no matches</span>",["Sanctions lists","PEP lists","Adverse media"]):simple("Metadata",["Device: Chrome 87, macOS","Time zone matches document country","No VPN detected"]);
+  body=`<div class="grid">${left(a)}<div class="card"><div class="ctabs">${checks.map(c=>`<button class="ct ${S.check==c?"on":""}" data-check="${c}"><span class="ck ${c=="BotLens"&&a.bot>.45?(a.bot>.7?"x":"w"):""}">${c=="BotLens"&&a.bot>.45?"!":"✓"}</span>${c}</button>`).join("")}</div>${c}</div></div>`;
+ } else if(S.tab=="Logs"){
+  const L=[["14:30:02","Session started","Source: unknown referrer",""],["14:30:03","Personal details submitted","4 fields",a.bot>.7?"0.4 s":"38 s"],["14:30:04","Document uploaded","From gallery",a.bot>.7?"0.4 s":"21 s"],["14:30:05","Signature drawn","Constant stroke speed",a.bot>.7?"0.4 s":"6 s"],["14:30:09","Selfie and liveness","Passed","4 s"],["14:31:12","Botlens verdict",riskLab(a.bot),""]];
+  body=`<div class="card">${L.map(([t,e,d,ms],i)=>`<div class="log"><span class="dt">${a.date} ${t}</span><span class="ck ${i==5&&a.bot>.45?"x":""}">${i==5&&a.bot>.45?"!":"✓"}</span><span><b style="font-weight:500">${e}</b> <span class="muted">· ${d}</span></span><span class="ms ${a.bot>.7&&ms=="0.4 s"?"hot":""}">${ms}</span></div>`).join("")}</div>`;
+ } else if(S.tab=="Webhooks"){
+  body=`<div class="card"><table><thead><tr><th>Event</th><th>Endpoint</th><th>Response</th><th>Sent</th></tr></thead><tbody>${[["application.created","200"],["botlens.completed","200"],["application.status_changed",a.status=="review"?"Waiting":"200"]].map(([e,r])=>`<tr style="cursor:default"><td>${e}</td><td class="mono">https://client.example/hooks</td><td><span class="pill ${r=="200"?"ok":"review"}">${r}</span></td><td class="mono">${a.date} ${a.t2}</td></tr>`).join("")}</tbody></table></div>`;
+ } else body=`<div class="card"><pre>${JSON.stringify({application_id:a.id,flow:a.flow,status:ST[a.status][0].toLowerCase(),botlens:{score:a.bot,verdict:riskLab(a.bot),interaction_issues:a.inter.n,signature_similarity:a.sig.sim/100}},null,2)}</pre></div>`;
+ return `<main><div class="head"><button class="back" data-go="list" aria-label="Back">←</button><h1>${a.name}</h1>
+ <div class="meta"><small>Application ID</small><div>${a.id}</div></div><div class="meta"><small>Retrieve Date</small><div>${a.date} &nbsp;${a.t1}</div></div><div class="meta"><small>Verification Date</small><div>${a.date} &nbsp;${a.t2}</div></div>
+ <div class="status"><button class="sbtn ${a.status}" id="sbtn"><span class="dot">${ST[a.status][1]}</span>${ST[a.status][0]}<span class="car">▼</span></button>
+ <div class="menu ${S.menu?"open":""}"><button data-set="ok"><i style="background:var(--g)"></i>Approve</button><button data-set="no"><i style="background:var(--r)"></i>Reject</button><button data-set="review"><i style="background:var(--y)"></i>Need review</button></div></div>
+ <div class="icons"><button class="ib" data-soon="PDF report" title="Download PDF">PDF</button><button class="ib" data-soon="Flag" title="Flag">!</button><button class="ib" data-soon="Delete" title="Delete">⌫</button></div></div>
+ <div class="tabs">${["Main","Logs","Webhooks","Raw data"].map(t=>`<button class="tab ${S.tab==t?"on":""}" data-tab="${t}">${t}</button>`).join("")}</div>${body}</main>`}
+function render(){
+ const v=S.view=="detail"?detail():S.view=="stats"?stats():list();
+ const q=document.activeElement&&document.activeElement.id=="q";
+ $("#app").innerHTML=topbar()+v;
+ document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("on",(n.dataset.go=="stats")==(S.view=="stats")&&!!n.dataset.go));
+ if(q){const i=$("#q");i.focus();i.setSelectionRange(i.value.length,i.value.length)}
+}
+document.addEventListener("input",e=>{if(e.target.id=="q"){S.q=e.target.value;render()}});
+document.addEventListener("click",e=>{
+ const t=e.target.closest("button,tr,[data-ev]");
+ if(!t||!t.closest("#app")){return}
+ const d=t.dataset;
+ if(t.id!="sbtn"&&!t.closest(".menu")&&S.menu){S.menu=false}
+ if(d.go){S.view=d.go;S.menu=false;window.scrollTo(0,0)}
+ else if(d.filter)S.filter=d.filter;
+ else if(d.open){S.sel=d.open;S.view="detail";S.tab="Main";S.check="BotLens";S.open={};S.sigI=0;S.faceI=1;S.idI=0;window.scrollTo(0,0)}
+ else if(d.tab)S.tab=d.tab;
+ else if(d.check)S.check=d.check;
+ else if(d.th){const [k,i]=d.th.split(":");S[k]=+i}
+ else if(d.ev)S.open[d.ev]=!S.open[d.ev];
+ else if(t.id=="sbtn")S.menu=!S.menu;
+ else if(d.set){const a=APPS.find(x=>x.id==S.sel),prev=a.status;a.status=d.set;S.menu=false;render();
+  toast(a.name+(d.set=="ok"?" approved":d.set=="no"?" rejected":" moved back to review"),()=>{a.status=prev;render()});return}
+ else if(d.play!==undefined){toast("Liveness video plays here in the real product");return}
+ else if(d.soon){toast(d.soon+" is not part of this prototype");return}
+ render();
+});
+document.addEventListener("keydown",e=>{if(e.key=="Escape"&&S.menu){S.menu=false;render()}});
+render();
+</script>
+</body>
+</html>

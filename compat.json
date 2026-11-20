@@ -1,0 +1,50 @@
+{
+  "v": 1,
+  "mode": "omelette",
+  "root": "project/",
+  "title": "Kristina Ponomarenko Portfolio",
+  "entry": "Kristina Portfolio.dc.html",
+  "pages": [
+    {
+      "path": "Kristina Portfolio.dc.html",
+      "title": "Kristina Portfolio",
+      "kind": "page"
+    },
+    {
+      "path": "Case Study.dc.html",
+      "title": "Case Study",
+      "kind": "page"
+    },
+    {
+      "path": "Case Studies.dc.html",
+      "title": "Case Studies",
+      "kind": "page"
+    },
+    {
+      "path": "About.dc.html",
+      "title": "About",
+      "kind": "page"
+    }
+  ],
+  "migratorVersion": "artifact-migrator (claude-design-backend ed667f7ac9c1)",
+  "createdAt": "2026-11-19T12:25:21.589Z",
+  "source": {
+    "v": 1,
+    "app": "claude-design",
+    "url": "https://claude.ai/design/p/f2e4642e-0cfa-4792-af40-d293afb34095",
+    "projectId": "f2e4642e-0cfa-4792-af40-d293afb34095",
+    "exportedAt": "2026-11-19T12:25:21.589Z"
+  },
+  "report": {
+    "itemsVersion": 2,
+    "pages": {
+      "total": 4,
+      "ok": 4,
+      "partial": 0,
+      "notMigrated": 0
+    },
+    "items": [],
+    "truncated": 0,
+    "truncatedLeftOut": 0
+  }
+}

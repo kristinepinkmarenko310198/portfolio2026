@@ -1,0 +1,143 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>x-dc{display:none!important}</style><script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script><script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./theme.css">
+<style>
+html,body{background:#0F1111;color:#E5E5E4}
+</style>
+<script src="./casestudies.js"></script>
+<script src="./fx.js"></script>
+</helmet>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a href="index.html" class="brand"><i></i>Kristina P.</a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link is-on" href="case-studies.html" aria-current="page">Case Studies</a>
+      <a class="nav-link" href="about.html">About</a>
+    </div>
+    <a href="#contact" class="nav-cta" data-magnetic="0.3"><i></i>Let's talk</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header class="wrap" style="position:relative;padding-top:170px">
+  <div class="glow" aria-hidden="true" style="opacity:.45;height:520px;bottom:auto"><i class="g2"></i></div>
+  <div style="position:relative;z-index:1">
+    <a data-reveal="" href="index.html" class="back" style="margin-bottom:40px">← Back home</a>
+    <h1 data-reveal="" class="h-xl" style="font-size:clamp(52px,9vw,150px);letter-spacing:-0.045em;line-height:.95;margin-bottom:34px">Case Studies</h1>
+    <p data-reveal="" class="body-lg" style="max-width:620px;margin-bottom:44px">Enterprise healthcare, identity-verification SaaS, and white-label loyalty - the complex problems I've turned into products people actually use. Pick any one to read the full story.</p>
+    <div data-reveal="" style="display:flex;flex-wrap:wrap;gap:10px">
+      <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+        <button type="button" class="{{ f.cls }}" aria-pressed="{{ f.pressed }}" onclick="{{ f.onClick }}">{{ f.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+</header>
+
+<!-- INDEX LIST -->
+<section class="wrap" style="padding-top:64px">
+  <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+    <a data-cursor="Read" href="{{ r.href }}" class="cs-row">
+      <span class="cut cs-thumb" style="--c:14px"><span class="cut-in"><img src="{{ r.thumb }}" alt="" loading="lazy"><span class="cs-num">{{ r.num }}</span></span></span>
+      <div style="min-width:0">
+        <div style="margin-bottom:12px">
+          <h2 class="h-md" style="font-weight:500;font-size:clamp(24px,2.6vw,40px);letter-spacing:-0.03em">{{ r.name }}</h2>
+          <span style="display:block;margin-top:6px;font-size:14px;color:#8A8C81">{{ r.client }}</span>
+        </div>
+        <p class="body" style="max-width:640px;font-size:15.5px">{{ r.summary }}</p>
+      </div>
+      <div class="cs-side">
+        <div class="chips">
+          <sc-for list="{{ r.tags }}" as="t" hint-placeholder-count="3"><span class="chip">{{ t }}</span></sc-for>
+        </div>
+        <span class="circle" style="width:52px;height:52px;font-size:20px" aria-hidden="true"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></span>
+      </div>
+    </a>
+  </sc-for>
+</section>
+
+<!-- CONTACT / FOOTER -->
+<footer id="contact" class="contact">
+  <div class="wrap contact-grid">
+    <div class="contact-left">
+      <p class="mono" style="margin:0 0 26px">Get in touch</p>
+      <h2 class="h-xl" style="font-size:clamp(44px,6.2vw,100px);color:var(--ink)">Let's build something <span class="accent">great.</span></h2>
+    </div>
+    <div class="contact-right">
+      <p class="mono" style="margin:0 0 10px">Start here</p>
+      <div class="c-row">
+        <a href="mailto:uiuxkristine@gmail.com">uiuxkristine@gmail.com</a>
+        <button type="button" class="c-copy" data-copy="uiuxkristine@gmail.com" aria-label="Copy email address"><span class="ico-l">Copy <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="1.5"></rect><path d="M5 15V5.5A1.5 1.5 0 0 1 6.5 4H15"></path></svg></span><span class="ok"><svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg> Copied</span></button>
+      </div>
+      <a class="c-row" href="tel:+4368181704973">+43 681 81704973 <span aria-hidden="true"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></a>
+      <a class="c-row" href="https://www.linkedin.com/in/kristina-ponomarenko-5aa919194/" target="_blank" rel="noopener">LinkedIn <span aria-hidden="true"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></span></a>
+      <div class="zones">
+        <div class="zone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E5E5E4" stroke-width="1.2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"></path></svg><span class="zone-t">Linz / remote</span></div>
+        <div class="zone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E5E5E4" stroke-width="1.2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg><span class="zone-t">LNZ<b data-clock="">-</b></span></div>
+        <div class="zone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E5E5E4" stroke-width="1.2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg><span class="zone-t">You<b data-clock-local="">-</b></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bar">
+    <div class="wrap">
+      <span style="font-size:12px;color:#8A8C81">© 2026 Kristina Ponomarenko · Linz, Austria</span>
+      <span style="font-size:12px;color:#8A8C81">UI/UX Lead · AI-Native Design Systems · <span data-clock="">-</span> CET</span>
+    </div>
+  </div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { filter: "All" };
+
+  componentDidMount() {
+    if (window.PortfolioFX) window.PortfolioFX.init();
+  }
+  componentDidUpdate() { if (window.PortfolioFX && window.PortfolioFX._rebind) window.PortfolioFX._rebind(); }
+
+  _clients() {
+    const all = window.CASE_STUDIES || [];
+    return ["All"].concat([...new Set(all.map((s) => s.client))]);
+  }
+
+  renderVals() {
+    const all = window.CASE_STUDIES || [];
+    const f = this.state.filter;
+    const shown = f === "All" ? all : all.filter((s) => s.client === f);
+
+    const filters = this._clients().map((label) => ({
+      label,
+      cls: f === label ? "filter is-on" : "filter",
+      pressed: f === label ? "true" : "false",
+      onClick: () => this.setState({ filter: label }),
+    }));
+
+    const rows = shown.map((s) => ({
+      href: s.page || ("case-study.html?id=" + s.slug),
+      num: s.num,
+      thumb: s.thumb,
+      name: s.name,
+      client: s.client,
+      summary: s.summary,
+      tags: s.tags,
+    }));
+
+    return { total: all.length, filters, rows };
+  }
+}
+</script>
+
+
+</body></html>

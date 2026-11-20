@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resch &amp; Frisch onboarding prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#19191A;--ink2:#5C5F66;--line:#DADDE3;--soft:#ECF0F7;--pri:#B9E1FA;--pri-d:#8FCDF4;--err:#E0245E;--ok:#1E9E5A;--warn:#E8890C;--font:'Jost','Futura',system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0F1111;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid #1F6FB2;outline-offset:2px}
+.stage{height:100%;display:flex;align-items:center;justify-content:center;padding:20px}
+.devwrap{width:calc(390px * var(--s,1));height:calc(844px * var(--s,1));flex:none}
+.device{width:390px;height:844px;transform:scale(var(--s,1));transform-origin:top left;border-radius:48px;padding:10px;background:#050506;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 40px 90px -20px rgba(0,0,0,.8)}
+.screen{position:relative;width:100%;height:100%;border-radius:38px;overflow:hidden;background:#fff}
+.embed .stage{padding:0;display:block}
+.embed .devwrap{width:100%;height:100%}
+.embed .device{width:100%;height:100%;transform:none;border-radius:0;padding:0;box-shadow:none}
+.embed .screen{border-radius:0}
+.status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 30px;font-weight:600;font-size:15px;flex:none}
+.status i{display:inline-block;width:24px;height:11px;border:1.5px solid currentColor;border-radius:3px;position:relative;margin-left:6px;vertical-align:-1px}
+.status i::after{content:"";position:absolute;inset:1.5px;right:4px;background:currentColor;border-radius:1px}
+.view{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff}
+.view.enter{animation:in .32s cubic-bezier(.22,1,.36,1)}
+.view.enter.back{animation:inb .32s cubic-bezier(.22,1,.36,1)}
+.inp input[type=password]:not(:placeholder-shown){font-family:system-ui,-apple-system,sans-serif;letter-spacing:.12em}
+@keyframes in{from{transform:translateX(28px);opacity:0}}
+@keyframes inb{from{transform:translateX(-28px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.view.enter,.view.enter.back{animation:none}}
+/* nav with brand + progress */
+.nav{flex:none;padding:6px 16px 0}
+.navrow{height:44px;display:flex;align-items:center;justify-content:space-between}
+.iconbtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
+.iconbtn:hover{background:var(--soft)}
+.brand{display:flex;align-items:center;gap:4px;font-weight:600;letter-spacing:.14em;font-size:15px}
+.brand img{width:22px;height:30px;object-fit:contain}
+.bar{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.bar span{height:4px;border-radius:2px;background:var(--soft);overflow:hidden}
+.bar span b{display:block;height:100%;width:0;background:var(--pri-d);transition:width .35s ease}
+.body{flex:1;overflow:auto;padding:28px 16px 16px}
+h1{margin:0;font-weight:500;font-size:28px;line-height:1.2;letter-spacing:-.01em}
+.lead{margin:10px 0 0;font-size:18px;line-height:1.4}
+.field{margin-top:28px}
+.field label,.flabel{display:block;font-weight:500;font-size:14px;margin-bottom:8px}
+.inp{position:relative}
+.inp input{width:100%;height:50px;border:1px solid var(--line);border-radius:8px;padding:0 48px 0 14px;font-size:16px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.inp input:focus{outline:none;border-color:#5BA8DD;box-shadow:0 0 0 3px rgba(91,168,221,.22)}
+.inp input.err{border-color:var(--err)}
+.inp .eye{position:absolute;right:6px;top:5px}
+.help{margin:8px 0 0;font-size:13px;color:var(--ink2);line-height:1.4}
+.help.err{color:var(--err)}
+.sugg{margin-top:8px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.sugg button{display:block;width:100%;text-align:left;padding:12px 14px;font-size:15px;border-top:1px solid var(--soft)}
+.sugg button:first-child{border-top:0}
+.sugg button:hover,.sugg button:focus{background:var(--soft);outline:none}
+.fix{margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:8px;background:#FFF4E5;font-size:14px}
+.fix button{font-weight:600;text-decoration:underline}
+.meter{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:10px}
+.meter span{height:4px;border-radius:2px;background:var(--soft)}
+.rules{list-style:none;margin:12px 0 0;padding:0;font-size:14px;color:var(--ink2)}
+.rules li{display:flex;align-items:center;gap:8px;margin-top:6px}
+.rules li::before{content:"";width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);flex:none}
+.rules li.ok{color:var(--ink)}
+.rules li.ok::before{background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/10px no-repeat;border-color:var(--ok)}
+.field label.radio,.radio{display:flex;margin:0;font-weight:400;align-items:center;gap:12px;padding:14px 4px;border-bottom:1px solid var(--soft);font-size:17px;cursor:pointer}
+.radio input{width:20px;height:20px;accent-color:#2D84C4;margin:0}
+.foot{flex:none;padding:12px 16px 30px;display:flex;gap:10px}
+.btn{flex:1;height:50px;border-radius:8px;background:var(--pri);font-weight:500;font-size:16px;transition:background .15s,opacity .15s}
+.btn:hover{background:var(--pri-d)}
+.btn.sec{background:var(--soft)}
+.btn.out{background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;background:var(--pri)}
+.home-indicator{position:absolute;left:50%;bottom:8px;width:134px;height:5px;border-radius:3px;background:#0C212C;transform:translateX(-50%);z-index:5}
+.skip{position:absolute;right:20px;top:52px;font-size:16px;color:var(--ink2);z-index:2}
+.dots{display:flex;gap:6px;justify-content:center;padding-bottom:6px}
+.dots i{width:6px;height:6px;border-radius:3px;background:var(--line)}
+.dots i.on{width:18px;background:var(--ink)}
+.center{text-align:center}
+.center .lead{color:var(--ink2);font-size:16px}
+.bonus{display:flex;align-items:center;gap:12px;margin:0 16px;padding:12px 14px;border-radius:12px;background:#FFF6EA;border:1px solid #F6DDBA}
+.bonus img{width:34px;height:46px;object-fit:contain}
+.bonus b{display:block;font-weight:600;font-size:16px}
+.bonus span{font-size:14px;color:var(--ink2)}
+/* Redesigned welcome screen */
+.welcome-hero{position:relative;flex:none;height:42%;overflow:hidden}
+.welcome-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.55) saturate(1.1)}
+.welcome-hero-content{position:absolute;left:0;right:0;bottom:30px;color:#fff;text-align:center;z-index:2}
+.welcome-hero-content .brand-row{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600;letter-spacing:.2em;font-size:22px;text-shadow:0 2px 20px rgba(0,0,0,.4)}
+.welcome-hero-content .brand-row img{width:38px;height:52px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
+.welcome-hero-content .brand-tag{margin:8px 0 0;font-size:11px;letter-spacing:.32em;color:rgba(255,255,255,.85)}
+.welcome-sheet{flex:1;overflow:auto;padding:0 20px 20px;margin-top:-32px;background:#fff;border-radius:28px 28px 0 0;position:relative;z-index:3;box-shadow:0 -12px 32px rgba(10,14,20,.08)}
+.bonus-card{display:flex;align-items:center;gap:14px;padding:14px 16px;margin:24px 0 0;border-radius:16px;background:linear-gradient(135deg,#F3FAFF,#FFF6EA);border:1px solid #E5F0F9}
+.bonus-ring{width:56px;height:56px;border-radius:50%;background:#19191A;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none}
+.bonus-ring span{font-size:18px;font-weight:700;line-height:1}
+.bonus-ring small{font-size:9px;letter-spacing:.14em;color:var(--pri);margin-top:2px}
+.bonus-text{display:flex;flex-direction:column;gap:2px}
+.bonus-text b{font-weight:600;font-size:14px;color:var(--ink)}
+.bonus-text span{font-size:12px;color:var(--ink2);line-height:1.35}
+.welcome-title{font-size:22px;font-weight:600;letter-spacing:-0.01em;margin:22px 0 4px;color:var(--ink);line-height:1.2}
+.welcome-sub{margin:0;font-size:14px;color:var(--ink2);line-height:1.5}
+.welcome-cta-group{margin-top:22px;display:grid;gap:12px}
+.primary-cta{width:100%;background:var(--ink);color:#fff;border-radius:14px;height:52px;font-size:15px;font-weight:600;border:0;cursor:pointer;transition:background .2s}
+.primary-cta:hover{background:#2A2C2C}
+.divider{display:flex;align-items:center;gap:10px;margin:4px 0}
+.divider span{font-size:12px;color:var(--ink2);white-space:nowrap}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.social-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.social-btn{height:50px;border-radius:14px;background:#fff;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s}
+.social-btn:hover{border-color:var(--ink);background:#F7F8FA}
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--soft);padding:8px 4px 26px;background:#fff}
+.tabbar span{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#8A8F99}
+.tabbar span.on{color:var(--ink);font-weight:500}
+.tabbar svg{width:22px;height:22px}
+.sumrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--soft)}
+.sumrow:first-child{border-top:0}
+.sumrow small{display:block;font-size:13px;color:var(--ink2)}
+.sumrow b{font-weight:500;font-size:16px}
+.chip{height:32px;padding:0 12px;border-radius:16px;background:var(--soft);font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.chip:hover{background:#DDE6F2}
+.card{border:1px solid var(--line);border-radius:12px;padding:4px 14px}
+.check{display:flex;gap:12px;align-items:flex-start;margin-top:18px;font-size:14px;line-height:1.45;color:var(--ink2);cursor:pointer}
+.check input{width:20px;height:20px;margin:0;accent-color:#E8890C;flex:none}
+.toast{position:absolute;left:16px;right:16px;bottom:100px;background:#19191A;color:#fff;border-radius:12px;padding:12px 14px;font-size:14px;z-index:9;animation:in .25s ease}
+.success{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 28px;overflow:hidden}
+.points{font-size:64px;font-weight:600;letter-spacing:-.02em;margin:12px 0 0;line-height:1}
+.points small{font-size:20px;font-weight:500;margin-left:6px}
+.confetti{position:absolute;inset:0;pointer-events:none}
+.confetti i{position:absolute;top:-12px;width:8px;height:14px;border-radius:2px;animation:fall 2.6s linear forwards}
+@keyframes fall{to{transform:translateY(880px) rotate(540deg)}}
+.club{margin:0 16px;border-radius:16px;padding:18px;background:linear-gradient(135deg,#2B2A28,#4A3826);color:#fff;position:relative;overflow:hidden}
+.club img{position:absolute;right:-6px;bottom:-14px;width:96px;opacity:.95;transform:rotate(-8deg)}
+.club small{opacity:.75;font-size:13px}
+.club .pts{font-size:40px;font-weight:600;margin-top:4px}
+.qr{display:grid;place-items:center;margin:18px 16px 0;padding:18px;border:1px dashed var(--line);border-radius:12px;text-align:center;color:var(--ink2);font-size:14px}
+/* old one-screen registration (before) */
+.old{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#222}
+.old-hot{position:absolute;left:10%;width:80.7%;height:6.2%;border-radius:10px}
+.old-hot:hover,.old-hot:focus-visible{box-shadow:0 0 0 2px rgba(31,111,178,.6)}
+.old-body{flex:1;overflow:auto;padding:16px 16px 12px}
+.old h2{margin:6px 0 2px;font-size:26px;font-weight:700}
+.old .sub{margin:0 0 6px;font-size:12px;line-height:1.35}
+.old-f{margin-top:10px}
+.old-f label{display:block;font-size:13px;font-weight:500;margin-bottom:4px}
+.old-f input{width:100%;height:40px;border:1px solid #E1E4EA;border-radius:4px;padding:0 12px;font-size:14px;font-family:inherit}
+.old-f input:focus{outline:none;border-color:#7AB8E5}
+.old-f input.err{border-color:#E0245E}
+.old-f small{display:block;font-size:11px;color:#8A8F99;margin-top:3px}
+.old-f small.err{color:#E0245E}
+.old-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.old-f .old-g input{width:16px;height:16px;padding:0;margin:0;accent-color:#2D84C4}
+.old-g{display:flex;gap:16px;margin-top:6px;font-size:13px}
+.old-g label{display:flex;align-items:center;gap:6px;font-weight:400}
+.old-c{display:flex;gap:10px;margin-top:12px;font-size:12px;line-height:1.4;color:#555}
+.old-btn{width:100%;height:44px;border-radius:6px;background:#E4E7F2;color:#555;font-size:15px;font-family:inherit}
+.old-btn.on{background:#B9E1FA;color:#19191A}
+.old-err{margin:0 0 8px;padding:8px 10px;border-radius:4px;background:#FDECEF;color:#B0123F;font-size:12px}
+</style>
+</head>
+<body>
+<div class="stage"><div class="devwrap"><div class="device"><div class="screen" id="screen"></div></div></div></div>
+<script>
+(function(){
+  if (/[?&]embed=1/.test(location.search)) document.documentElement.classList.add('embed');
+  const fit = () => { if (document.documentElement.classList.contains('embed')) return; const s = Math.min(1, (innerHeight - 40) / 844, (innerWidth - 32) / 390); document.documentElement.style.setProperty('--s', Math.max(0.4, s).toFixed(3)); };
+  fit(); addEventListener('resize', fit);
+
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  const OLD = /[?&]v=old/.test(location.search);
+  const S = { step: OLD ? 'old-start' : 'splash', back:false, anim:true, from:null, d:{ id:'', pw:'', showPw:false, name:'', gender:'', bday:'', plz:'', consent:false }, touched:{}, toast:'' };
+  const ICON = {
+    back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>',
+    close:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    eye:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+    eyeoff:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.8 9.8 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+    edit:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+    fb:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/></svg>',
+    apple:'<svg width="18" height="20" viewBox="0 0 24 24" fill="#000"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.8-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.6-1-2.6-4.1zM13.9 5c.7-.9 1.2-2 1.1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.1.1 2.3-.6 3-1.5z"/></svg>',
+    google:'<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.2-2.1 3.5-5.1 3.5-8.7z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3a7.2 7.2 0 0 1-10.8-3.8H1.3v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.3 14.3a7.2 7.2 0 0 1 0-4.6V6.6H1.3a12 12 0 0 0 0 10.8z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.4.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.3 6.6l4 3.1A7.2 7.2 0 0 1 12 4.8z"/></svg>'
+  };
+  const tab = (on) => `<nav class="tabbar" aria-label="App navigation">${[['Treue-Club','<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>'],['Standort','<path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>'],['Menü','<path d="M5 6h14M5 12h14M5 18h14"/>'],['Nachrichten','<path d="M4 5h16v11H8l-4 4z"/>'],['Mehr','<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>']].map(([l,p],i)=>`<span class="${i===on?'on':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>${l}</span>`).join('')}</nav>`;
+  const status = (dark) => `<div class="status" style="${dark?'color:#fff':''}"><span>9:41</span><span>5G <i></i></span></div>`;
+  const brand = `<span class="brand" aria-label="Resch und Frisch">RESCH<img src="pretzel.png" alt="">FRISCH</span>`;
+  // progress: 0 account (id, pw), 1 about you (name..plz), 2 check
+  const STEPS = ['id','pw','name','gender','bday','plz','summary'];
+  const prog = (step) => { const i = STEPS.indexOf(step); const seg = [[0,2],[2,6],[6,7]]; return `<div class="bar" aria-hidden="true">${seg.map(([a,b])=>`<span><b style="width:${i>=b?100:i<a?0:Math.round(((i-a)+1)/(b-a)*100)}%"></b></span>`).join('')}</div>`; };
+  const nav = (step) => `<div class="nav"><div class="navrow"><button class="iconbtn" data-act="back" aria-label="Zurück">${ICON.back}</button>${brand}<button class="iconbtn" data-act="exit" aria-label="Schließen">${ICON.close}</button></div>${prog(step)}</div>`;
+
+  /* validation */
+  const DOMAINS = ['gmail.com','outlook.com','yahoo.com','gmx.at','gmx.net','web.de','icloud.com','hotmail.com'];
+  const isEmail = v => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v.trim());
+  const isPhone = v => /^\+?[0-9 ]{8,}$/.test(v.trim());
+  function typo(v){ const m = v.trim().match(/@([^@\s]+)$/); if (!m) return null; const dom = m[1].toLowerCase(); if (DOMAINS.includes(dom)) return null;
+    const dist=(a,b)=>{const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length];};
+    let best=null,bd=3; DOMAINS.forEach(x=>{const k=dist(dom,x); if(k<bd&&k>0){bd=k;best=x;}}); return best ? v.trim().replace(/@[^@]+$/,'@'+best) : null; }
+  const pwRules = v => [[v.length>=8,'Mindestens 8 Zeichen'],[/[0-9]/.test(v),'Mindestens eine Zahl'],[/[^A-Za-z0-9]/.test(v),'Mindestens ein Symbol']];
+  const pwScore = v => pwRules(v).filter(r=>r[0]).length + (v.length>=12?1:0);
+  const bdayOk = v => { const m=v.match(/^(\d{2})\.(\d{2})\.(\d{4})$/); if(!m) return false; const d=+m[1],mo=+m[2],y=+m[3]; const dt=new Date(y,mo-1,d); return dt.getDate()===d && dt.getMonth()===mo-1 && y>1900 && y<=2026-14; };
+  const valid = { id: () => isEmail(S.d.id)||isPhone(S.d.id), pw: () => pwRules(S.d.pw).every(r=>r[0]), name: () => S.d.name.trim().split(/\s+/).length>=2, gender: () => !!S.d.gender, bday: () => bdayOk(S.d.bday), plz: () => !S.d.plz || /^\d{4,5}$/.test(S.d.plz), summary: () => S.d.consent };
+
+  function view(){
+    const st = S.step, d = S.d;
+    if (st === 'old-start') return `<div class="view old"><img src="old-start.jpg" alt="Alte Startseite der Resch und Frisch App mit fünf Anmeldeoptionen" style="position:absolute;inset:0;width:100%;height:100%;object-fit:fill">
+      ${[['Mit Facebook anmelden',41.4],['Mit Apple anmelden',50.4],['Mit Google anmelden',59.4],['Mit SMS anmelden',68.3]].map(([l,y])=>`<button class="old-hot" data-act="social" aria-label="${l}" style="top:${y-3.1}%"></button>`).join('')}
+      <button class="old-hot" data-go="old-form" aria-label="Mit Email anmelden" style="top:${77.3-3.1}%"></button></div>`;
+    if (st === 'old-form') { const e = S.oldErr || {}, f = (k, label, ph, extra) => `<div class="old-f"><label for="o-${k}">${label}</label><input id="o-${k}" data-o="${k}" value="${esc(S.d[k]||'')}" placeholder="${ph}" class="${e[k]?'err':''}" ${extra||''}><small class="${e[k]?'err':''}">${e[k]||'Enter your helper text here'}</small></div>`;
+      return `<div class="view old ${S.anim?'enter':''}">${status()}<div class="navrow" style="padding:0 12px;border-bottom:3px solid #B9E1FA"><button class="iconbtn" data-go="old-start" data-dir="back" aria-label="Zurück">${ICON.back}</button>${brand}<span style="width:40px"></span></div>
+      <div class="old-body"><h2>Persönliche Daten</h2><p class="sub">Fast geschafft!<br>Fülle bitte noch deine Daten aus</p>
+        ${Object.keys(e).length ? `<p class="old-err" role="alert">Bitte überprüfe ${Object.keys(e).length} Angaben.</p>` : ''}
+        ${f('id','E-Mail','E-Mail eingeben','type="email"')}${f('pw','Passwort','Passwort eingeben','type="password"')}
+        <div class="old-row">${f('first','Vorname','Vorname eingeben')}${f('last','Nachname','Nachname eingeben')}</div>
+        <div class="old-row">${f('bday','Geburtstag','TT.MM.JJJJ')}${f('plz','Postleitzahl (Optional)','PLZ eingeben')}</div>
+        <div class="old-f"><label>Geschlecht</label><div class="old-g">${['Keine Angabe','Weiblich','Männlich'].map(g=>`<label><input type="radio" name="og" data-ogender="${g}" ${S.d.gender===g?'checked':''}>${g}</label>`).join('')}</div></div>
+        <label class="old-c"><input type="checkbox" data-oconsent ${S.d.consent?'checked':''}><span style="${e.consent?'color:#B0123F':''}">Ja, ich habe die Datenschutzbestimmungen und Teilnahmebedingungen gelesen und akzeptiere sie.</span></label>
+      </div><div class="foot" style="padding-top:8px"><button class="old-btn ${S.d.consent?'on':''}" data-act="oldsubmit">Bestätigen</button></div><span class="home-indicator"></span></div>`; }
+    if (st === 'old-done') return `<div class="view old ${S.anim?'enter':''}">${status()}<div class="success"><h2>Registrierung abgeschlossen</h2><p class="sub" style="font-size:14px;margin-top:10px">Du kannst jetzt Treuepunkte sammeln.</p></div><div class="foot"><button class="old-btn on" data-act="oldrestart">Von vorne</button></div><span class="home-indicator"></span></div>`;
+    if (st === 'splash') return `<div class="view" style="background:#2A2A2A"><button data-go="intro1" aria-label="Weiter" style="position:absolute;inset:0"><img src="splash.jpg" alt="Liebesbrot von Resch und Frisch, seit 1924" style="width:100%;height:100%;object-fit:cover;display:block"></button></div>`;
+    if (st === 'intro1' || st === 'intro2') {
+      const one = st === 'intro1';
+      return `<div class="view ${S.anim?'enter':''} ${S.back?'back':''}">${status()}<button class="skip" data-go="welcome">Überspringen</button>
+        <div class="body center" style="padding-top:40px">
+          ${one ? `<img src="illu.png" alt="" style="width:300px;max-width:100%;display:block;margin:0 auto">` : `<svg viewBox="0 0 300 270" width="300" style="display:block;margin:0 auto;max-width:100%" aria-hidden="true"><rect x="70" y="30" width="160" height="210" rx="18" fill="#fff" stroke="#19191A" stroke-width="3"/><rect x="92" y="62" width="116" height="116" rx="8" fill="#ECF0F7"/><g fill="#19191A"><rect x="104" y="74" width="30" height="30" rx="3"/><rect x="166" y="74" width="30" height="30" rx="3"/><rect x="104" y="136" width="30" height="30" rx="3"/><rect x="146" y="118" width="10" height="10"/><rect x="160" y="132" width="10" height="10"/><rect x="176" y="146" width="10" height="10"/><rect x="146" y="150" width="10" height="16"/><rect x="186" y="122" width="10" height="10"/></g><g fill="#fff"><rect x="111" y="81" width="16" height="16" rx="2"/><rect x="173" y="81" width="16" height="16" rx="2"/><rect x="111" y="143" width="16" height="16" rx="2"/></g><g fill="#19191A"><rect x="116" y="86" width="6" height="6"/><rect x="178" y="86" width="6" height="6"/><rect x="116" y="148" width="6" height="6"/></g><path d="M86 120h128" stroke="#E8890C" stroke-width="3" stroke-linecap="round"/><rect x="118" y="196" width="64" height="8" rx="4" fill="#DADDE3"/><rect x="232" y="150" width="54" height="70" rx="6" fill="#FFF6EA" stroke="#19191A" stroke-width="2.5" transform="rotate(12 259 185)"/><path d="M244 168h26M244 180h20M244 192h24" stroke="#19191A" stroke-width="2" stroke-linecap="round" transform="rotate(12 259 185)"/></svg>`}
+          <h1 style="margin-top:28px;font-size:24px">${one?'Herzlich Willkommen!':'QR Code Scannen'}</h1>
+          <p class="lead">${one?'Jetzt Treuepunkte sammeln und gegen attraktive Prämien eintauschen':'Ganz einfach! QR Code auf der Rechnung scannen und Treuepunkte sammeln'}</p>
+        </div>
+        <div class="dots" aria-hidden="true"><i class="${one?'on':''}"></i><i class="${one?'':'on'}"></i></div>
+        <div class="foot">${one?'':'<button class="btn sec" data-go="intro1" data-dir="back">Zurück</button>'}<button class="btn" data-go="${one?'intro2':'welcome'}">Weiter</button></div>
+        <span class="home-indicator"></span></div>`;
+    }
+    if (st === 'welcome') return `<div class="view ${S.anim?'enter':''} ${S.back?'back':''}" style="background:#fff">${status()}
+      <div class="welcome-hero">
+        <img src="splash.jpg" alt="" class="welcome-bg">
+        <div class="welcome-hero-content">
+          <div class="brand-row"><span>RESCH</span><img src="pretzel.png" alt=""><span>FRISCH</span></div>
+          <p class="brand-tag">AM LIEBSTEN IMMER</p>
+        </div>
+      </div>
+      <div class="welcome-sheet">
+        <div class="bonus-card">
+          <div class="bonus-ring"><span>100</span><small>PKT</small></div>
+          <div class="bonus-text"><b>Dein Willkommensgeschenk</b><span>Sofort nach der Registrierung gutgeschrieben</span></div>
+        </div>
+        <h1 class="welcome-title">Willkommen bei Resch &amp; Frisch</h1>
+        <p class="welcome-sub">Punkte sammeln, Vorteile sichern, jederzeit</p>
+        <div class="welcome-cta-group">
+          <button class="btn primary-cta" data-go="id">Mit Telefonnummer oder E-Mail anmelden</button>
+          <div class="divider"><span>oder weiter mit</span></div>
+          <div class="social-row">
+            <button class="social-btn" data-act="social" aria-label="Mit Facebook anmelden">${ICON.fb}</button>
+            <button class="social-btn" data-act="social" aria-label="Mit Apple anmelden">${ICON.apple}</button>
+            <button class="social-btn" data-act="social" aria-label="Mit Google anmelden">${ICON.google}</button>
+          </div>
+        </div>
+      </div>
+      <span class="home-indicator"></span></div>`;
+    const wrap = (inner, cta, dis) => `<div class="view ${S.anim?'enter':''} ${S.back?'back':''}">${status()}${nav(st)}<div class="body">${inner}</div><div class="foot"><button class="btn" data-act="next" ${dis?'disabled':''}>${cta||'Weiter'}</button></div><span class="home-indicator"></span></div>`;
+    if (st === 'id') {
+      const v = d.id, at = v.includes('@'), local = v.split('@')[0], after = at ? v.split('@')[1] : '';
+      const sugg = at && local && !DOMAINS.includes(after) ? DOMAINS.slice(0,4).filter(x => x.startsWith(after)).map(x => local + '@' + x) : [];
+      const fix = isEmail(v) ? typo(v) : null;
+      const showErr = S.touched.id && v && !valid.id() && !sugg.length;
+      return wrap(`<h1>Nutze deine E-Mail oder Telefonnummer zum Anmelden</h1>
+        <div class="field"><label for="f-id">E-Mail-Adresse/Telefonnummer</label><div class="inp"><input id="f-id" data-f="id" value="${esc(v)}" inputmode="email" autocomplete="email" placeholder="E-Mail-Adresse/Telefonnummer eingeben" class="${showErr?'err':''}" aria-describedby="h-id"></div>
+        ${sugg.length ? `<div class="sugg" role="listbox" aria-label="Vorschläge">${sugg.map(x=>`<button role="option" data-fill="${esc(x)}">${esc(x)}</button>`).join('')}</div>` : ''}
+        ${fix ? `<div class="fix"><span>Meintest du <b>${esc(fix)}</b>?</span><button data-fill="${esc(fix)}">Übernehmen</button></div>` : ''}
+        <p class="help ${showErr?'err':''}" id="h-id">${showErr ? 'Bitte gib eine gültige E-Mail-Adresse oder Telefonnummer ein' : 'Wir schicken dir keinen Spam. Versprochen.'}</p></div>`, 'Weiter', !valid.id());
+    }
+    if (st === 'pw') {
+      const sc = pwScore(d.pw), lab = !d.pw ? '' : sc <= 1 ? ['Schwach','var(--err)'] : sc <= 2 ? ['Mittel','var(--warn)'] : ['Stark','var(--ok)'];
+      return wrap(`<h1>Dein Passwort</h1><p class="lead">Bitte wähle ein sicheres Passwort</p>
+        <div class="field"><label for="f-pw">Passwort</label><div class="inp"><input id="f-pw" data-f="pw" type="${d.showPw?'text':'password'}" value="${esc(d.pw)}" placeholder="Passwort eingeben" autocomplete="new-password"><button class="iconbtn eye" data-act="eye" aria-label="${d.showPw?'Passwort verbergen':'Passwort anzeigen'}">${d.showPw?ICON.eyeoff:ICON.eye}</button></div>
+        <div class="meter" aria-hidden="true">${[1,2,3].map(i=>`<span style="background:${lab && i <= Math.min(3, Math.max(1, sc)) ? lab[1] : 'var(--soft)'}"></span>`).join('')}</div>
+        ${lab ? `<p class="help" style="color:${lab[1]};font-weight:500">${lab[0]}</p>` : ''}
+        <ul class="rules">${pwRules(d.pw).map(([ok,t])=>`<li class="${ok?'ok':''}">${t}</li>`).join('')}</ul></div>`, 'Weiter', !valid.pw());
+    }
+    if (st === 'name') return wrap(`<h1>Dein Name?</h1><p class="lead">Wir möchten eine personalisierte Erfahrung für dich schaffen</p>
+      <div class="field"><label for="f-name">Vor- und Nachname</label><div class="inp"><input id="f-name" data-f="name" value="${esc(d.name)}" placeholder="z. B. Anna Huber" autocomplete="name"></div>${S.touched.name && d.name && !valid.name() ? '<p class="help err">Bitte gib Vor- und Nachnamen ein</p>' : ''}</div>`, S.from ? 'Speichern' : 'Weiter', !valid.name());
+    if (st === 'gender') return wrap(`<h1>Dein Geschlecht?</h1><p class="lead">Wir möchten eine personalisierte Erfahrung für dich schaffen</p>
+      <div class="field" role="radiogroup" aria-label="Geschlecht">${['Weiblich','Männlich','Divers','Keine Angabe'].map(g=>`<label class="radio"><input type="radio" name="g" data-gender="${g}" ${d.gender===g?'checked':''}>${g}</label>`).join('')}</div>`, S.from ? 'Speichern' : 'Weiter', !valid.gender());
+    if (st === 'bday') return wrap(`<h1>Dein Geburtstag?</h1><p class="lead">Wir benötigen dies, um dir spezielle Angebote und Rabatte zu senden</p>
+      <div class="field"><label for="f-bday">Geburtstag</label><div class="inp"><input id="f-bday" data-f="bday" value="${esc(d.bday)}" inputmode="numeric" placeholder="TT.MM.JJJJ" maxlength="10"></div><p class="help ${S.touched.bday && d.bday.length===10 && !valid.bday()?'err':''}">${S.touched.bday && d.bday.length===10 && !valid.bday() ? 'Bitte prüfe das Datum' : 'An deinem Geburtstag wartet eine Überraschung'}</p></div>`, S.from ? 'Speichern' : 'Weiter', !valid.bday());
+    if (st === 'plz') return wrap(`<h1>Deine Postleitzahl?</h1><p class="lead">Um sicher zu gehen, dass du dich in unserem Liefergebiet befindest</p>
+      <div class="field"><label for="f-plz">Postleitzahl (optional)</label><div class="inp"><input id="f-plz" data-f="plz" value="${esc(d.plz)}" inputmode="numeric" placeholder="z. B. 4020" maxlength="5"></div><p class="help">Du kannst diesen Schritt auch überspringen</p></div>`, S.from ? 'Speichern' : (d.plz ? 'Weiter' : 'Überspringen'), !valid.plz());
+    if (st === 'summary') {
+      const rows = [['Name',d.name,'name'],[isEmail(d.id)?'E-Mail':'Telefonnummer',d.id,'id'],['Geschlecht',d.gender,'gender'],['Geburtstag',d.bday,'bday'],['Postleitzahl',d.plz||'Nicht angegeben','plz']];
+      return wrap(`<h1>Fast geschafft, bitte überprüfe deine Angaben</h1>
+        <div class="card" style="margin-top:22px">${rows.map(([k,v,s])=>`<div class="sumrow"><span><small>${k}</small><b>${esc(v)}</b></span><button class="chip" data-edit="${s}" aria-label="${k} bearbeiten">${ICON.edit}Bearbeiten</button></div>`).join('')}</div>
+        <label class="check"><input type="checkbox" data-f="consent" ${d.consent?'checked':''}><span>Ja, ich habe die Datenschutzbestimmungen und Teilnahmebedingungen gelesen und akzeptiere sie.</span></label>`, 'Bestätigen', !valid.summary());
+    }
+    if (st === 'done') {
+      const first = d.name.split(' ')[0] || 'du';
+      const colors = ['#E8890C','#B9E1FA','#19191A','#F6C35B','#8FCDF4','#C9692C'];
+      return `<div class="view ${S.anim?'enter':''}">${status()}<div class="success">
+        <div class="confetti" aria-hidden="true">${Array.from({length:36},(_,i)=>`<i style="left:${(i*37)%100}%;background:${colors[i%6]};animation-delay:${(i%9)*0.09}s;transform:rotate(${i*23}deg)"></i>`).join('')}</div>
+        <img src="pretzel.png" alt="" style="width:92px">
+        <h1 style="margin-top:14px">Willkommen im Treue-Club, ${esc(first)}!</h1>
+        <p class="points">+100<small>Punkte</small></p>
+        <p class="lead" style="color:var(--ink2);font-size:16px">Dein Willkommensbonus ist schon auf deinem Konto.</p>
+      </div><div class="foot"><button class="btn" data-go="club">Zum Treue-Club</button></div><span class="home-indicator"></span></div>`;
+    }
+    if (st === 'club') return `<div class="view ${S.anim?'enter':''}">${status()}<div class="body" style="padding:12px 0 0">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px 14px">${brand}<button class="chip" data-act="restart">Neu starten</button></div>
+        <div class="club"><small>Dein Punktestand</small><div class="pts">100 Punkte</div><small>Noch 150 Punkte bis zum Gratis-Kaffee</small><img src="pretzel.png" alt=""></div>
+        <div class="qr"><svg width="120" height="120" viewBox="0 0 21 21" aria-label="Dein Treue-QR-Code" role="img" shape-rendering="crispEdges"><rect width="21" height="21" fill="#fff"/>${qr()}</svg><span style="margin-top:10px">An der Kassa zeigen und Punkte sammeln</span></div>
+      </div>${tab(0)}<span class="home-indicator"></span></div>`;
+    return '';
+  }
+  function qr(){ let h=''; const f=(x,y)=>{h+=`<rect x="${x}" y="${y}" width="7" height="7" fill="#19191A"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#19191A"/>`;}; f(0,0);f(14,0);f(0,14); let s=7; for(let y=0;y<21;y++)for(let x=0;x<21;x++){ if((x<8&&y<8)||(x>12&&y<8)||(x<8&&y>12)) continue; s=(s*1103515245+12345)&0x7fffffff; if(s%3===0) h+=`<rect x="${x}" y="${y}" width="1" height="1" fill="#19191A"/>`; } return h; }
+
+  const root = $('#screen');
+  function render(keepFocus){
+    const a = document.activeElement, fid = a && a.id, pos = a && a.selectionStart;
+    root.innerHTML = view();
+    if (keepFocus && fid && document.getElementById(fid)) { const el = document.getElementById(fid); el.focus(); try { const end = fid === 'f-bday' || fid === 'f-plz'; el.setSelectionRange(end ? el.value.length : pos, end ? el.value.length : pos); } catch(e){} }
+    S.back = false; S.anim = false;
+  }
+  // update everything except the input being typed in, so typing never loses focus or caret
+  function patch(){
+    const tmp = document.createElement('div'); tmp.innerHTML = view();
+    const cur = root.querySelector('.view'), nxt = tmp.querySelector('.view'); if (!cur || !nxt) return render(true);
+    const cf = cur.querySelector('.field'), nf = nxt.querySelector('.field');
+    if (cf && nf) { const ci = cf.querySelector('.inp'), ni = nf.querySelector('.inp');
+      if (ci && ni) {
+        const a = ci.querySelector('input'), b = ni.querySelector('input');
+        if (a && b) { a.className = b.className; if (a.value !== b.value) { a.value = b.value; try { a.setSelectionRange(a.value.length, a.value.length); } catch(e){} } }
+        while (ci.nextSibling) ci.nextSibling.remove();
+        let n = ni.nextSibling; while (n) { const nx = n.nextSibling; cf.appendChild(n); n = nx; }
+      } }
+    const f1 = cur.querySelector('.foot'), f2 = nxt.querySelector('.foot'); if (f1 && f2) f1.replaceWith(f2);
+  }
+  function go(step, back){ S.step = step; S.back = !!back; S.anim = true; render(); const i = root.querySelector('input:not([type=radio]):not([type=checkbox])'); if (i && !('ontouchstart' in window)) setTimeout(() => i.focus({preventScroll:true}), 60); }
+  function next(){ const st = S.step; if (valid[st] && !valid[st]()) { S.touched[st] = true; render(); return; }
+    if (S.from) { S.from = null; return go('summary'); }
+    if (st === 'summary') return go('done');
+    go(STEPS[STEPS.indexOf(st) + 1]); }
+  function back(){ if (S.from) { S.from = null; return go('summary', true); } const i = STEPS.indexOf(S.step); go(i <= 0 ? 'welcome' : STEPS[i - 1], true); }
+  function toast(t){ const old = root.querySelector('.toast'); if (old) old.remove(); const el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role','status'); el.textContent = t; root.appendChild(el); clearTimeout(toast.t); toast.t = setTimeout(() => el.remove(), 2800); }
+
+  root.addEventListener('click', e => {
+    const t = e.target.closest('button,[data-go]'); if (!t || t.disabled) return; const ds = t.dataset;
+    if (ds.go) return go(ds.go, ds.dir === 'back');
+    if (ds.fill) { S.d.id = ds.fill; S.touched.id = true; render(); const el = $('#f-id'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } return; }
+    if (ds.edit) { S.from = 'summary'; return go(ds.edit); }
+    switch (ds.act) {
+      case 'next': return next();
+      case 'back': return back();
+      case 'exit': return go('welcome', true);
+      case 'eye': { S.d.showPw = !S.d.showPw; const el = $('#f-pw'); if (el) { el.type = S.d.showPw ? 'text' : 'password'; t.innerHTML = S.d.showPw ? ICON.eyeoff : ICON.eye; t.setAttribute('aria-label', S.d.showPw ? 'Passwort verbergen' : 'Passwort anzeigen'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); } return; }
+      case 'social': return toast('Social Login ist in diesem Prototyp nicht aktiv. Weiter mit Telefonnummer oder E-Mail.');
+      case 'oldsubmit': { const d = S.d, e = {};
+        if (!isEmail(d.id||'')) e.id = 'Bitte gib eine gültige E-Mail ein'; if (!pwRules(d.pw||'').every(r=>r[0])) e.pw = 'Mind. 8 Zeichen, eine Zahl und ein Symbol';
+        if (!(d.first||'').trim()) e.first = 'Pflichtfeld'; if (!(d.last||'').trim()) e.last = 'Pflichtfeld'; if (!bdayOk(d.bday||'')) e.bday = 'Format TT.MM.JJJJ';
+        if (!d.consent) e.consent = 1; S.oldErr = e; if (Object.keys(e).length) { render(); root.querySelector('.old-body').scrollTop = 0; return; } return go('old-done'); }
+      case 'oldrestart': S.d = { id:'', pw:'', showPw:false, name:'', gender:'', bday:'', plz:'', consent:false }; S.oldErr = null; return go('old-start');
+      case 'restart': S.d = { id:'', pw:'', showPw:false, name:'', gender:'', bday:'', plz:'', consent:false }; S.touched = {}; return go('splash');
+    }
+  });
+  root.addEventListener('input', e => {
+    if (e.target.dataset.o) { S.d[e.target.dataset.o] = e.target.value; return; }
+    const t = e.target, k = t.dataset.f; if (!k || t.type === 'checkbox') return;
+    let v = t.value;
+    if (k === 'bday') { const dgt = v.replace(/\D/g,'').slice(0,8); v = dgt.length > 4 ? dgt.slice(0,2)+'.'+dgt.slice(2,4)+'.'+dgt.slice(4) : dgt.length > 2 ? dgt.slice(0,2)+'.'+dgt.slice(2) : dgt; if (v.length === 10) S.touched.bday = true; }
+    if (k === 'plz') v = v.replace(/\D/g,'').slice(0,5);
+    S.d[k] = v; patch();
+  });
+  root.addEventListener('change', e => { const t = e.target; if (t.dataset.ogender) { S.d.gender = t.dataset.ogender; return; } if ('oconsent' in t.dataset) { S.d.consent = t.checked; const b = root.querySelector('.old-btn'); if (b) b.classList.toggle('on', t.checked); return; } if (t.dataset.gender) { S.d.gender = t.dataset.gender; render(); } if (t.dataset.f === 'consent') { S.d.consent = t.checked; render(); } });
+  root.addEventListener('focusout', e => { const k = e.target.dataset && e.target.dataset.f; if (k && S.d[k]) S.touched[k] = true; });
+  root.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT' && !e.target.dataset.o) { e.preventDefault(); next(); } });
+
+  render();
+  if (!OLD) setTimeout(() => { if (S.step === 'splash') go('intro1'); }, 1800);
+})();
+</script>
+</body>
+</html>
